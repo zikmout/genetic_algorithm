@@ -1218,23 +1218,26 @@ class Schedule {
   }
 }
 
-let data = new Data(grid, amos, people);
+class Population {
+  constructor(size) {
+    this.size = size;
+    this.schedules = [];
+    for (let i = 0; i < size; i++) {
+      this.schedules.push(
+        new Schedule(new Data(grid, amos, people)).initialize()
+      );
+    }
+  }
 
-let schedule = new Schedule(data).initialize();
-schedule.data.printGrid();
-schedule.calculateFitness();
-console.log(`schedule.getFitness() : ${schedule.getFitness()}`);
-// class Population {
-//   constructor(size) {
-//     this.size = size;
-//     this.data = data;
-//     this.schedules = [];
-//     for (let i = 0; i < size; i++) {
-//       this.schedules.push(new Schedule().initialize());
-//     }
-//   }
+  getSchedules() {
+    return this.schedules;
+  }
+}
 
-//   getSchedules() {
-//     return this.schedules;
-//   }
-// }
+let population = new Population(POPULATION_SIZE);
+let schedules = population.getSchedules();
+
+schedules.forEach((schedule) => {
+  schedule.calculateFitness();
+  console.log(schedule.getFitness());
+});
