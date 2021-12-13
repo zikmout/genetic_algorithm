@@ -1133,11 +1133,21 @@ class Schedule {
 
   constructor(data) {
     this.data = data;
-    this.rdvs = [];
-    // this.availabilities = undefined
     this.numbOfConflicts = 0;
     this.fitness = -1;
     this.isFitnessChanged = true;
+  }
+
+  getNumberOfConflicts() {
+    return this.numbOfConflicts;
+  }
+
+  getFitness() {
+    if (this.isFitnessChanged) {
+      this.fitness = this.calculateFitness();
+      this.isFitnessChanged = false;
+    }
+    return this.fitness;
   }
 
   initialize() {
@@ -1174,59 +1184,46 @@ class Schedule {
           );
           break;
         }
-        // console.log(`[${ranShift}][${ranAmo}][${ranSlot}] loop`);
       }
-      // this.data.printGrid();
     }
-    this.data.printGrid();
     return this;
   }
 
-  // initialize() {
-  //   let rdvTypes = this.data.getRdvTypes();
-  //   let meetingTimes = this.data.getMeetingTimes();
-  //   let amos = this.data.getAmos();
-
-  //   for (let i = 0; i < rdvTypes.length; i++) {
-  //     for (let j = 0; j < rdvTypes[i].getNumber(); j++) {
-  //       let rdv = new Rdv(this.rdvNumb, rdvTypes[i].getLength());
-  //       rdv.setMeetingTime(
-  //         meetingTimes[getRandomInt(0, meetingTimes.length - 1)]
-  //       );
-  //       rdv.setAmo(amos[getRandomInt(0, amos.length - 1)]);
-  //       this.rdvs.push(rdv);
-  //       this.rdvNumb += 1;
-  //     }
-  //   }
-  //   return this;
-  // }
-
-  // calculateFitness() {
-  //   this.numberOfConflicts = 0;
-  //   let rdvs = this.getRdvs();
-  //   // console.log(`calculateFitness()`);
-  //   for (let i = 0; i < rdvs.length; i++) {
-  //     // Verify Meeting Time Length == Rdv Length
-  //     if (
-  //       rdvs[i].getLength() !==
-  //       getHourLength(rdvs[i].getMeetingTime().getTime())
-  //     ) {
-  //       this.numberOfConflicts += 1;
-  //     }
-
-  //     // Verify Amo is not booked elsewhere at same time
-  //     if (isAmoBookedSameTime(rdvs[i], rdvs)) {
-  //       this.numberOfConflicts += 1;
-  //     }
-  //   }
-  //   return 1 / (1.0 * this.numberOfConflicts + 1);
-  // }
+  calculateFitness() {
+    let ranName = undefined;
+    let counter = 0;
+    let people = [];
+    let ppl = [];
+    for (let s = 0; s < this.data.grid.length; s++) {
+      for (let a = 0; a < this.data.grid[s].length; a++) {
+        for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
+          if (this.data.grid[s][a][sl].booked !== false) {
+            ppl.push(this.data.grid[s][a][sl].booked);
+            ranName = this.data.grid[s][a][sl].booked;
+            counter += 1;
+            if (
+              !this.data.grid[s][a][sl + 1] ||
+              ranName !== this.data.grid[s][a][sl + 1].booked
+            ) {
+              people.push(counter);
+              counter = 0;
+            }
+          }
+        }
+      }
+    }
+    let intersection = people.filter((_) => this.data.people.includes(_));
+    this.numbOfConflicts = this.data.people.length - intersection.length;
+    return (1 / (1.0 * this.numbOfConflicts + 1)).toFixed(10);
+  }
 }
 
 let data = new Data(grid, amos, people);
 
 let schedule = new Schedule(data).initialize();
-
+schedule.data.printGrid();
+schedule.calculateFitness();
+console.log(`schedule.getFitness() : ${schedule.getFitness()}`);
 // class Population {
 //   constructor(size) {
 //     this.size = size;
