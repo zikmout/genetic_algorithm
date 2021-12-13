@@ -1110,19 +1110,36 @@ class Data {
 
 class Schedule {
   fit = (grid, shift, amo, slot, rdvLength) => {
+    // printGrid(grid)
     let s = shift;
     let a = amo;
     let sl = slot;
-    let l = 0;
-
-    for (l; l < rdvLength; l++) {
-      // console.log(`sl = ${sl}`);
-      if (!grid[s][a][sl + l]) {
-        return false;
+    for (s; s < grid.length; s++) {
+      for (a; a < grid[s].length; a++) {
+        for (sl; sl < grid[s][a].length; sl++) {
+          // console.log(`rdvLength === ${rdvLength}`);
+          if (grid[s][a][sl].booked !== false) {
+            // console.log(
+            //   `[${initRdvLength}] K.O. end : ${moment(
+            //     grid[s][a][sl].end
+            //   )} (${JSON.stringify(grid[s][a][sl])})`
+            // );
+            return false;
+          } else {
+            rdvLength -= 1;
+          }
+          if (rdvLength === 0) {
+            // console.log(`init = ${initRdvLength}`);
+            // console.log(`\n\ngrid : ${JSON.stringify(grid[s][a][sl])}`);
+            // console.log(
+            //   `[${initRdvLength}] OK end : ${moment(grid[s][a][sl].end)}`
+            // );
+            return true;
+          }
+        }
       }
     }
-
-    return true;
+    return false;
   };
 
   fillGridBooked = (name, length, grid, shift, amo, slot) => {
@@ -1172,13 +1189,17 @@ class Schedule {
             ranAmo,
             ranSlot
           );
+          // let pc = [];
+          // for (var i = 0; i < this.data.people.length; i++) pc[i] = this.data.people[i];
+          // let pplIdx = pc.indexOf(shuffledPeople[i]);
+          // pc.splice(pplIdx, 1);
+          // this.data.people = pc
           break;
         }
-        // console.log(`[${ranShift}][${ranAmo}][${ranSlot}] loop`);
+        console.log(`[${ranShift}][${ranAmo}][${ranSlot}] loop`);
       }
-      // this.data.printGrid();
+      this.data.printGrid();
     }
-    this.data.printGrid();
     return this;
   }
 
