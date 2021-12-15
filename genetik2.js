@@ -27,7 +27,7 @@ function shuffle(array) {
 POPULATION_SIZE = 9;
 NUMB_OF_ELITE_SCHEDULES = 1;
 TOURNAMENT_SELECTION_SIZE = 3;
-MUTATION_RATE = 0.1;
+MUTATION_RATE = 0.1; // Mutation should not happen ofter because creates noise
 
 let grid = [
   [
@@ -1261,9 +1261,9 @@ sortSchedulesByFitness(schedules);
 // });
 
 class GeneticAlgorithm {
-  // evolve(population) {
-  //   return this.mutatePopulation(this.crossoverPopulation(population));
-  // }
+  evolve(population) {
+    return this.mutatePopulation(this.crossoverPopulation(population));
+  }
 
   crossoverPopulation(pop) {
     let crossoverPop = new Population(0);
@@ -1326,8 +1326,8 @@ class GeneticAlgorithm {
   mutateSchedule(mutateSchedule) {
     let schedule = new Schedule(new Data(grid, amos, people)).initialize();
 
-    mutateSchedule.isFitnessChanged = true;
-    console.log(`mutateSchedule BEFORE : ${mutateSchedule.getFitness()}`);
+    // mutateSchedule.isFitnessChanged = true;
+    // console.log(`mutateSchedule BEFORE : ${mutateSchedule.getFitness()}`);
 
     for (let s = 0; s < mutateSchedule.data.getGrid().length; s++) {
       for (let a = 0; a < mutateSchedule.data.getGrid()[s].length; a++) {
@@ -1351,7 +1351,7 @@ class GeneticAlgorithm {
     // expected to only make it worse !
     // --> Pb fitness basee sur l'intersection ???
     mutateSchedule.getFitness();
-    console.log(`mutateSchedule AFTER  : ${mutateSchedule.getFitness()}`);
+    // console.log(`mutateSchedule AFTER  : ${mutateSchedule.getFitness()}`);
     return mutateSchedule;
   }
 
@@ -1364,12 +1364,13 @@ class GeneticAlgorithm {
         .push(pop.getSchedules()[getRandomInt(0, POPULATION_SIZE - 1)]);
     }
 
+    // Verify sorted ?
     sortSchedulesByFitness(tournamentPop.getSchedules());
     return tournamentPop;
   }
 }
 
 let geneticAlgorithm = new GeneticAlgorithm();
-let ret = geneticAlgorithm.crossoverPopulation(population);
-let ret2 = geneticAlgorithm.mutateSchedule(population.getSchedules()[0]);
+// let ret = geneticAlgorithm.crossoverPopulation(population);
+// let ret2 = geneticAlgorithm.mutatePopulation(population);
 // console.log(ret);
