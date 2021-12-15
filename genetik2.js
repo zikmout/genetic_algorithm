@@ -1279,16 +1279,16 @@ class GeneticAlgorithm {
         .getSchedules()
         .push(this.crossoverSchedule(schedule1, schedule2));
     }
-    printSchedulesFitness(crossoverPop.getSchedules());
+    // printSchedulesFitness(crossoverPop.getSchedules());
     return crossoverPop; // returns only the one with the highest fitness
   }
 
-  // mutatePopulation(population) {
-  //   for (let i = NUMB_OF_ELITE_SCHEDULES; i < POPULATION_SIZE; i++) {
-  //     this.mutateSchedule(population.getSchedules()[i]);
-  //   }
-  //   return population;
-  // }
+  mutatePopulation(population) {
+    for (let i = NUMB_OF_ELITE_SCHEDULES; i < POPULATION_SIZE; i++) {
+      this.mutateSchedule(population.getSchedules()[i]);
+    }
+    return population;
+  }
 
   crossoverSchedule(schedule1, schedule2) {
     let crossoverSchedule = new Schedule(
@@ -1323,15 +1323,37 @@ class GeneticAlgorithm {
     return crossoverSchedule;
   }
 
-  // mutateSchedule(mutateSchedule) {
-  //   let schedule = new Schedule().initialize();
-  //   for (let i = 0; i < mutateSchedule.getRdvs().length; i++) {
-  //     if (MUTATION_RATE > Math.random()) {
-  //       mutateSchedule.getRdvs()[i] = schedule.getRdvs()[i];
-  //     }
-  //   }
-  //   return mutateSchedule;
-  // }
+  mutateSchedule(mutateSchedule) {
+    let schedule = new Schedule(new Data(grid, amos, people)).initialize();
+
+    mutateSchedule.isFitnessChanged = true;
+    console.log(`mutateSchedule BEFORE : ${mutateSchedule.getFitness()}`);
+
+    for (let s = 0; s < mutateSchedule.data.getGrid().length; s++) {
+      for (let a = 0; a < mutateSchedule.data.getGrid()[s].length; a++) {
+        for (
+          let sl = 0;
+          sl < mutateSchedule.data.getGrid()[s][a].length;
+          sl++
+        ) {
+          if (MUTATION_RATE > Math.random()) {
+            mutateSchedule.data.getGrid()[s][a][sl] =
+              schedule.data.getGrid()[s][a][sl];
+            // mutateSchedule.getRdvs()[i] = schedule.getRdvs()[i];
+          }
+        }
+      }
+    }
+
+    mutateSchedule.isFitnessChanged = true;
+    // No need to getFitness() for mutateSchedule here
+    // Need to understand why fitness can go up whereas mutation is
+    // expected to only make it worse !
+    // --> Pb fitness basee sur l'intersection ???
+    mutateSchedule.getFitness();
+    console.log(`mutateSchedule AFTER  : ${mutateSchedule.getFitness()}`);
+    return mutateSchedule;
+  }
 
   selectTournamentPopulation(pop) {
     let tournamentPop = new Population(0);
@@ -1349,4 +1371,5 @@ class GeneticAlgorithm {
 
 let geneticAlgorithm = new GeneticAlgorithm();
 let ret = geneticAlgorithm.crossoverPopulation(population);
+let ret2 = geneticAlgorithm.mutateSchedule(population.getSchedules()[0]);
 // console.log(ret);
