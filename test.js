@@ -12,7 +12,6 @@ let originPeople = [
 ];
 
 const getNbOfConflicts = (originPeople, people) => {
-  let nbOfConflicts = 0;
   let cp = [...originPeople];
   console.log(JSON.stringify(cp));
   people.forEach((p) => {
