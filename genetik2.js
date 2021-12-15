@@ -1291,30 +1291,26 @@ class GeneticAlgorithm {
     // console.log(`schedule2 => ${schedule2.getFitness()}`);
 
     crossoverSchedule.isFitnessChanged = true;
-    console.log(
-      `crossoverSchedule fitness before => ${crossoverSchedule.getFitness()}`
-    );
+    // console.log(
+    //   `crossoverSchedule fitness before => ${crossoverSchedule.getFitness()}`
+    // );
 
     for (let s = 0; s < crossoverSchedule.data.getGrid().length; s++) {
       for (let a = 0; a < crossoverSchedule.data.getGrid()[s].length; a++) {
         if (Math.random() > 0.5) {
-          Object.assign(
-            crossoverSchedule.data.getGrid()[s][a],
-            schedule1.data.getGrid()[s][a]
-          );
+          crossoverSchedule.data.getGrid()[s][a] =
+            schedule1.data.getGrid()[s][a];
         } else {
-          Object.assign(
-            crossoverSchedule.data.getGrid()[s][a],
-            schedule2.data.getGrid()[s][a]
-          );
+          crossoverSchedule.data.getGrid()[s][a] =
+            schedule2.data.getGrid()[s][a];
         }
       }
     }
 
     crossoverSchedule.isFitnessChanged = true;
-    console.log(
-      `crossoverSchedule fitness after  => ${crossoverSchedule.getFitness()}`
-    );
+    // console.log(
+    //   `crossoverSchedule fitness after  => ${crossoverSchedule.getFitness()}`
+    // );
     return crossoverSchedule;
   }
 
