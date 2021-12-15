@@ -1,8 +1,5 @@
 const { getHourLength, getMeetingTimeDay } = require("./funcs");
-
 function getRandomInt(min, max) {
-  // min and max included
-  // taken from stackoverflow
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
@@ -16,27 +13,6 @@ const AMOS = [
   ["A2", "Jérémie YULZARI"],
   ["A3", "Antoine FREREJEAN"],
 ];
-
-// const MEETING_TIMES = [
-//   ["MT1", "MWF 09:00 - 10:00"],
-//   ["MT2", "MWF 09:30 - 10:30"],
-//   ["MT3", "MWF 10:00 - 11:00"],
-//   ["MT4", "MWF 10:30 - 11:30"],
-//   ["MT5", "MWF 11:00 - 12:00"],
-//   ["MT6", "MWF 09:00 - 10:30"],
-//   ["MT7", "MWF 09:30 - 11:00"],
-//   ["MT8", "MWF 10:00 - 11:30"],
-//   ["MT9", "MWF 10:30 - 12:00"],
-//   ["MT10", "TTH 09:00 - 10:00"],
-//   ["MT11", "TTH 09:30 - 10:30"],
-//   ["MT12", "TTH 10:00 - 11:00"],
-//   ["MT13", "TTH 10:30 - 11:30"],
-//   ["MT14", "TTH 11:00 - 12:00"],
-//   ["MT15", "TTH 09:00 - 10:30"],
-//   ["MT16", "TTH 09:30 - 11:00"],
-//   ["MT17", "TTH 10:00 - 11:30"],
-//   ["MT18", "TTH 10:30 - 12:00"],
-// ];
 
 const MEETING_TIMES = [
   ["MT1", "M 09:00 - 10:00"],

@@ -1138,6 +1138,10 @@ class Schedule {
     this.isFitnessChanged = true;
   }
 
+  // getGrid() {
+  //   return this.data.grid;
+  // }
+
   getNumberOfConflicts() {
     return this.numbOfConflicts;
   }
@@ -1239,5 +1243,113 @@ let schedules = population.getSchedules();
 
 schedules.forEach((schedule) => {
   schedule.calculateFitness();
+});
+
+schedules.sort(function (a, b) {
+  return b.calculateFitness() - a.calculateFitness();
+});
+
+schedules.forEach((schedule) => {
   console.log(schedule.getFitness());
 });
+
+class GeneticAlgorithm {
+  // evolve(population) {
+  //   return this.mutatePopulation(this.crossoverPopulation(population));
+  // }
+
+  crossoverPopulation(pop) {
+    let crossoverPop = new Population(0);
+    // Verify crossoverPop
+    for (let i = 0; i < NUMB_OF_ELITE_SCHEDULES; i++) {
+      crossoverPop.getSchedules().push(pop.getSchedules()[i]);
+    }
+
+    for (let i = NUMB_OF_ELITE_SCHEDULES; i < POPULATION_SIZE; i++) {
+      let schedule1 = this.selectTournamentPopulation(pop).getSchedules()[0];
+      let schedule2 = this.selectTournamentPopulation(pop).getSchedules()[0];
+      crossoverPop
+        .getSchedules()
+        .push(this.crossoverSchedule(schedule1, schedule2));
+    }
+    return crossoverPop; // returns only the one with the highest fitness
+  }
+
+  // mutatePopulation(population) {
+  //   for (let i = NUMB_OF_ELITE_SCHEDULES; i < POPULATION_SIZE; i++) {
+  //     this.mutateSchedule(population.getSchedules()[i]);
+  //   }
+  //   return population;
+  // }
+
+  crossoverSchedule(schedule1, schedule2) {
+    let crossoverSchedule = new Schedule(
+      new Data(grid, amos, people)
+    ).initialize();
+
+    // console.log(`schedule1 => ${schedule1.getFitness()}`);
+    // console.log(`schedule2 => ${schedule2.getFitness()}`);
+
+    crossoverSchedule.isFitnessChanged = true;
+    console.log(
+      `crossoverSchedule fitness before => ${crossoverSchedule.getFitness()}`
+    );
+
+    for (let s = 0; s < crossoverSchedule.data.getGrid().length; s++) {
+      for (let a = 0; a < crossoverSchedule.data.getGrid()[s].length; a++) {
+        if (Math.random() > 0.5) {
+          Object.assign(
+            crossoverSchedule.data.getGrid()[s][a],
+            schedule1.data.getGrid()[s][a]
+          );
+        } else {
+          Object.assign(
+            crossoverSchedule.data.getGrid()[s][a],
+            schedule2.data.getGrid()[s][a]
+          );
+        }
+      }
+    }
+
+    crossoverSchedule.isFitnessChanged = true;
+    console.log(
+      `crossoverSchedule fitness after  => ${crossoverSchedule.getFitness()}`
+    );
+    return crossoverSchedule;
+  }
+
+  // mutateSchedule(mutateSchedule) {
+  //   let schedule = new Schedule().initialize();
+  //   for (let i = 0; i < mutateSchedule.getRdvs().length; i++) {
+  //     if (MUTATION_RATE > Math.random()) {
+  //       mutateSchedule.getRdvs()[i] = schedule.getRdvs()[i];
+  //     }
+  //   }
+  //   return mutateSchedule;
+  // }
+
+  selectTournamentPopulation(pop) {
+    let tournamentPop = new Population(0);
+
+    for (let i = 0; i < TOURNAMENT_SELECTION_SIZE; i++) {
+      tournamentPop
+        .getSchedules()
+        .push(pop.getSchedules()[getRandomInt(0, POPULATION_SIZE - 1)]);
+    }
+
+    // Calculate Fitness
+    tournamentPop.getSchedules().forEach((schedule) => {
+      schedule.calculateFitness();
+    });
+
+    // Sort Fitness reverse
+    tournamentPop.getSchedules().sort(function (a, b) {
+      return b.calculateFitness() - a.calculateFitness();
+    });
+    return tournamentPop;
+  }
+}
+
+let geneticAlgorithm = new GeneticAlgorithm();
+let ret = geneticAlgorithm.crossoverPopulation(population);
+// console.log(ret);
