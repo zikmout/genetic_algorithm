@@ -1,10 +1,11 @@
 const moment = require("moment");
 const deepcopy = require("deepcopy");
 
-function getRandomInt(min, max) {
+// Utils
+const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
-function shuffle(array) {
+};
+const shuffle = (array) => {
   let counter = array.length;
 
   // While there are elements in the array
@@ -22,8 +23,24 @@ function shuffle(array) {
   }
 
   return array;
-}
+};
+const printSchedulesFitness = (schedules) => {
+  schedules.forEach((schedule) => {
+    console.log(`${schedule.getFitness()}`);
+  });
+};
+const sortSchedulesByFitness = (schedules) => {
+  schedules.forEach((schedule) => {
+    schedule.isFitnessChanged = true;
+    schedule.getFitness();
+  });
 
+  schedules.sort(function (a, b) {
+    return b.getFitness() - a.getFitness();
+  });
+};
+
+// Parameters
 POPULATION_SIZE = 9;
 NUMB_OF_ELITE_SCHEDULES = 1;
 TOURNAMENT_SELECTION_SIZE = 3;
@@ -1024,6 +1041,8 @@ const people = [
   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
 ];
 
+// Algorithm Classes
+
 class Data {
   copyGrid = (inputGrid) => {
     let outputGrid = [];
@@ -1234,32 +1253,6 @@ class Population {
   }
 }
 
-let population = new Population(POPULATION_SIZE);
-let schedules = population.getSchedules();
-
-const sortSchedulesByFitness = (schedules) => {
-  schedules.forEach((schedule) => {
-    schedule.isFitnessChanged = true;
-    schedule.getFitness();
-  });
-
-  schedules.sort(function (a, b) {
-    return b.getFitness() - a.getFitness();
-  });
-};
-
-const printSchedulesFitness = (schedules) => {
-  schedules.forEach((schedule) => {
-    console.log(`${schedule.getFitness()}`);
-  });
-};
-
-sortSchedulesByFitness(schedules);
-
-// schedules.forEach((schedule) => {
-//   console.log(schedule.getFitness());
-// });
-
 class GeneticAlgorithm {
   evolve(population) {
     return this.mutatePopulation(this.crossoverPopulation(population));
@@ -1370,7 +1363,18 @@ class GeneticAlgorithm {
   }
 }
 
+let population = new Population(POPULATION_SIZE);
+
+let generationNumber = 0;
+console.log(`\n> Generation # ${generationNumber}`);
+sortSchedulesByFitness(population.getSchedules());
+printSchedulesFitness(population.getSchedules());
 let geneticAlgorithm = new GeneticAlgorithm();
-// let ret = geneticAlgorithm.crossoverPopulation(population);
-// let ret2 = geneticAlgorithm.mutatePopulation(population);
-// console.log(ret);
+
+while (population.getSchedules()[0].getFitness() !== 1.0) {
+  generationNumber += 1;
+  console.log(`\n> Generation # ${generationNumber}`);
+  geneticAlgorithm.evolve(population);
+  printSchedulesFitness(population.getSchedules());
+  break;
+}
