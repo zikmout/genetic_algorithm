@@ -1248,6 +1248,12 @@ const sortSchedulesByFitness = (schedules) => {
   });
 };
 
+const printSchedulesFitness = (schedules) => {
+  schedules.forEach((schedule) => {
+    console.log(`${schedule.getFitness()}`);
+  });
+};
+
 sortSchedulesByFitness(schedules);
 
 // schedules.forEach((schedule) => {
@@ -1273,6 +1279,7 @@ class GeneticAlgorithm {
         .getSchedules()
         .push(this.crossoverSchedule(schedule1, schedule2));
     }
+    printSchedulesFitness(crossoverPop.getSchedules());
     return crossoverPop; // returns only the one with the highest fitness
   }
 
