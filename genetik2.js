@@ -1138,10 +1138,6 @@ class Schedule {
     this.isFitnessChanged = true;
   }
 
-  // getGrid() {
-  //   return this.data.grid;
-  // }
-
   getNumberOfConflicts() {
     return this.numbOfConflicts;
   }
@@ -1241,17 +1237,22 @@ class Population {
 let population = new Population(POPULATION_SIZE);
 let schedules = population.getSchedules();
 
-schedules.forEach((schedule) => {
-  schedule.calculateFitness();
-});
+const sortSchedulesByFitness = (schedules) => {
+  schedules.forEach((schedule) => {
+    schedule.isFitnessChanged = true;
+    schedule.getFitness();
+  });
 
-schedules.sort(function (a, b) {
-  return b.calculateFitness() - a.calculateFitness();
-});
+  schedules.sort(function (a, b) {
+    return b.getFitness() - a.getFitness();
+  });
+};
 
-schedules.forEach((schedule) => {
-  console.log(schedule.getFitness());
-});
+sortSchedulesByFitness(schedules);
+
+// schedules.forEach((schedule) => {
+//   console.log(schedule.getFitness());
+// });
 
 class GeneticAlgorithm {
   // evolve(population) {
@@ -1290,7 +1291,7 @@ class GeneticAlgorithm {
     // console.log(`schedule1 => ${schedule1.getFitness()}`);
     // console.log(`schedule2 => ${schedule2.getFitness()}`);
 
-    crossoverSchedule.isFitnessChanged = true;
+    // crossoverSchedule.isFitnessChanged = true;
     // console.log(
     //   `crossoverSchedule fitness before => ${crossoverSchedule.getFitness()}`
     // );
@@ -1308,6 +1309,7 @@ class GeneticAlgorithm {
     }
 
     crossoverSchedule.isFitnessChanged = true;
+    crossoverSchedule.getFitness();
     // console.log(
     //   `crossoverSchedule fitness after  => ${crossoverSchedule.getFitness()}`
     // );
@@ -1333,15 +1335,7 @@ class GeneticAlgorithm {
         .push(pop.getSchedules()[getRandomInt(0, POPULATION_SIZE - 1)]);
     }
 
-    // Calculate Fitness
-    tournamentPop.getSchedules().forEach((schedule) => {
-      schedule.calculateFitness();
-    });
-
-    // Sort Fitness reverse
-    tournamentPop.getSchedules().sort(function (a, b) {
-      return b.calculateFitness() - a.calculateFitness();
-    });
+    sortSchedulesByFitness(tournamentPop.getSchedules());
     return tournamentPop;
   }
 }
