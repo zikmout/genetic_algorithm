@@ -41,9 +41,9 @@ const sortSchedulesByFitness = (schedules) => {
 };
 
 // Parameters
-POPULATION_SIZE = 90;
+POPULATION_SIZE = 45;
 NUMB_OF_ELITE_SCHEDULES = 5;
-TOURNAMENT_SELECTION_SIZE = 30;
+TOURNAMENT_SELECTION_SIZE = 8;
 MUTATION_RATE = 0.1; // Mutation should not happen ofter because creates noise
 
 // Algorithm Classes
