@@ -136,20 +136,18 @@ const ftGenetic = (grid, people) => {
 
   class Schedule {
     fit = (grid, shift, amo, slot, rdvLength) => {
-      let s = shift;
-      let a = amo;
-      let sl = slot;
       let l = 0;
 
       for (l; l < rdvLength; l++) {
-        // console.log(`sl = ${sl}`);
-        if (!grid[s][a][sl + l]) {
-          // console.log(`BOOM`);
+        if (!grid[shift][amo][slot + l]) {
           return false;
         }
       }
 
-      if (grid[s][a][sl].booked === false) {
+      if (
+        grid[shift][amo][slot].booked === false &&
+        grid[shift][amo][slot + 1].booked === false
+      ) {
         return true;
       }
       return false;
@@ -333,24 +331,26 @@ const ftGenetic = (grid, people) => {
             break;
           }
 
-          if (
-            this.fit(
-              this.data.grid,
-              ranShift,
-              ranAmo,
-              ranSlot,
-              shuffledPeople[i]
-            ) === true
-          ) {
-            this.fillGridBooked(
-              ranName,
-              shuffledPeople[i],
-              this.data.grid,
-              ranShift,
-              ranAmo,
-              ranSlot
-            );
-            break;
+          if (getRandomInt(0, 5) === 0) {
+            if (
+              this.fit(
+                this.data.grid,
+                ranShift,
+                ranAmo,
+                ranSlot,
+                shuffledPeople[i]
+              ) === true
+            ) {
+              this.fillGridBooked(
+                ranName,
+                shuffledPeople[i],
+                this.data.grid,
+                ranShift,
+                ranAmo,
+                ranSlot
+              );
+              break;
+            }
           }
         }
       }
