@@ -1,5 +1,4 @@
 const moment = require("moment");
-const { ftGenetic } = require("./genetik3");
 // FONCTION BACKTRACKING PLACEMENT DES RDV
 
 function shuffle(array) {
@@ -356,10 +355,6 @@ const giveAnswers = (
     return [];
   }
 
-  const isAlreadyFoundSolution = (starts, start) => {
-    return starts.find((x) => x.start === start);
-  };
-
   let starts = [];
   for (let shift = 0; shift < initGrid.length; shift++) {
     // console.log(`loop shift`);
@@ -367,10 +362,7 @@ const giveAnswers = (
       // console.log(`loop amo`);
       for (let sl = 0; sl < initGrid[shift][amo].length; sl++) {
         // console.log(`push end : ${new Date().getTime()}`);
-        if (
-          !isAlreadyFoundSolution(starts, initGrid[shift][amo][sl].start) &&
-          fit(initGrid, shift, amo, sl, rdvLength)
-        ) {
+        if (fit(initGrid, shift, amo, sl, rdvLength)) {
           S = [];
 
           let newGrid = fillGridBooked(
@@ -400,8 +392,6 @@ const giveAnswers = (
             nbSolutions,
             pruned
           );
-
-          // [S] = ftGenetic(copyGrid(newGrid), pc);
 
           // printGrid(S[0])
           // console.log(`ftRec() : ${S.length}`);
@@ -1777,22 +1767,12 @@ let grid = [
 // Ici comme le pas est de 1800 (30 minutes), 5 correpond à 5*30 min = 2h30
 // pour 2 c'est 1h
 // etc, etc ...
-// let people = [
-//   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
-//   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
-//   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
-//   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
-// ];
-
-const people = [
+let people = [
   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-  5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4,
-  5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3,
-  5, 2, 2,
+  5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
 ];
 
 // Nombre de solutions nécessaires pour sortir de la récursive
