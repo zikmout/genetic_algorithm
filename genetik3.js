@@ -144,11 +144,12 @@ const ftGenetic = (grid, people) => {
       for (l; l < rdvLength; l++) {
         // console.log(`sl = ${sl}`);
         if (!grid[s][a][sl + l]) {
+          // console.log(`BOOM`);
           return false;
         }
       }
 
-      if (grid[s][a][sl + l - 1].booked === false) {
+      if (grid[s][a][sl].booked === false) {
         return true;
       }
       return false;
@@ -226,6 +227,77 @@ const ftGenetic = (grid, people) => {
       return this.fitness;
     }
 
+    advanceTrous(grid, shift, amo, slot, minUniquePeople) {
+      const isBooked = (x) => {
+        return x.booked !== false;
+      };
+      const isNotBooked = (x) => {
+        return x.booked === false;
+      };
+
+      var i = slot;
+      var tmpSlice = undefined;
+      var firstFalse = undefined;
+      var values = undefined;
+
+      while (grid[shift][amo][i]) {
+        if (i !== 0) {
+          tmpSlice = grid[shift][amo].slice(i);
+        } else {
+          tmpSlice = grid[shift][amo];
+        }
+        if (grid[shift][amo][i].booked !== false) {
+          firstFalse = tmpSlice.findIndex(isNotBooked);
+
+          if (firstFalse === -1) {
+            return ["S", "S"];
+          }
+          let available = grid[shift][amo]
+            .slice(firstFalse + i)
+            .findIndex(isBooked);
+          values = [i + firstFalse, available];
+
+          if (available === -1) {
+            values = [
+              i + firstFalse,
+              grid[shift][amo].length - (i + firstFalse),
+            ];
+            if (values[1] >= minUniquePeople) {
+              return values;
+            } else {
+              return ["S", "S"];
+            }
+          } else if (available >= minUniquePeople) {
+            return values;
+          } else {
+            i += firstFalse + available;
+            continue;
+          }
+        }
+
+        if (grid[shift][amo][i].booked === false) {
+          let available = tmpSlice.findIndex(isBooked);
+          values = [];
+          if (available === -1) {
+            available = grid[shift][amo].length - i;
+            if (available >= minUniquePeople) {
+              return [i, grid[shift][amo].length - i];
+            } else {
+              return ["S", "S"];
+            }
+          } else if (available >= minUniquePeople) {
+            return [i, available];
+          } else {
+            i += available;
+            continue;
+          }
+        }
+      }
+
+      // Si ne parvient pas a fit dans les slots de l amo, on avance avec ftRec()
+      return ["S", "S"];
+    }
+
     initialize() {
       let shuffledPeople = shuffle(this.data.people);
       for (let i = 0; i < shuffledPeople.length; i++) {
@@ -240,6 +312,26 @@ const ftGenetic = (grid, people) => {
             0,
             this.data.grid[ranShift][ranAmo].length - 1
           );
+
+          let values = this.advanceTrous(
+            this.data.grid,
+            ranShift,
+            ranAmo,
+            ranSlot,
+            shuffledPeople[i]
+          );
+
+          if (values[0] !== "S" && values[1] !== "S") {
+            this.fillGridBooked(
+              ranName,
+              shuffledPeople[i],
+              this.data.grid,
+              ranShift,
+              ranAmo,
+              values[0]
+            );
+            break;
+          }
 
           if (
             this.fit(

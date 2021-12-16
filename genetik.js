@@ -1794,7 +1794,6 @@ const people = [
   5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3,
   5, 2, 2,
 ];
-
 // Nombre de solutions nécessaires pour sortir de la récursive
 // Pas besoin de plus de 1 car je loope à travers la grille et j'execute
 // l'algortihme de backtracking sur tous les slots possibles
