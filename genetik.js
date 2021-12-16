@@ -293,6 +293,7 @@ const solveRdv = (grid, people, pas, nbSolutions, accept_trous, rdvLength) => {
       1000,
       true
     );
+
     let amoSlots = getAmoAgendas(S, pas);
 
     // Get all solutions for all rdv lengths
@@ -345,7 +346,6 @@ const giveAnswers = (
     Math.round(margin * 0.8) - (Math.round(margin * 0.8) % rdvLength);
 
   let start = new Date().getTime();
-  let end = undefined;
   console.log(
     `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
   );
@@ -393,6 +393,9 @@ const giveAnswers = (
             pruned
           );
 
+          // printGrid(S[0])
+          // console.log(`ftRec() : ${S.length}`);
+
           if (S.length !== 0) {
             // console.log(`S null`);
             starts.push({
@@ -406,7 +409,9 @@ const giveAnswers = (
       }
     }
   }
-
+  console.log(
+    `giveAnswer() : ${Math.round((new Date().getTime() - start) / 1000)}s`
+  );
   return starts;
 };
 
