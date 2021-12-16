@@ -41,10 +41,10 @@ const sortSchedulesByFitness = (schedules) => {
 };
 
 // Parameters
-POPULATION_SIZE = 45;
-NUMB_OF_ELITE_SCHEDULES = 5;
-TOURNAMENT_SELECTION_SIZE = 8;
-MUTATION_RATE = 0.1; // Mutation should not happen ofter because creates noise
+POPULATION_SIZE = 90;
+NUMB_OF_ELITE_SCHEDULES = 10;
+TOURNAMENT_SELECTION_SIZE = 10;
+MUTATION_RATE = 0.05; // Mutation should not happen ofter because creates noise
 
 // Algorithm Classes
 
@@ -324,7 +324,7 @@ const ftGenetic = (grid, people) => {
                     a,
                     values[0]
                   );
-                  sl = values[0] + values[1] + 1;
+                  sl = values[0] + values[1];
                 }
               }
             }
