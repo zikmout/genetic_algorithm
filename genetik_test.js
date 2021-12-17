@@ -1,10 +1,10 @@
-const { ftGenetic } = require("./genetik4");
+const { ftGenetic, getAvailables, reducer } = require("./genetik5");
 
 let grid = [
   [
     [
-      { start: 1635751800000, end: 1635753600000, booked: false },
-      { start: 1635753600000, end: 1635755400000, booked: false },
+      { start: 1635751800000, end: 1635753600000, booked: "@zak" },
+      { start: 1635753600000, end: 1635755400000, booked: "@zak" },
       { start: 1635755400000, end: 1635757200000, booked: false },
       { start: 1635757200000, end: 1635759000000, booked: false },
       { start: 1635759000000, end: 1635760800000, booked: false },
@@ -979,10 +979,10 @@ let grid = [
       { start: 1637330400000, end: 1637332200000, booked: false },
       { start: 1637332200000, end: 1637334000000, booked: false },
       { start: 1637334000000, end: 1637335800000, booked: false },
-      { start: 1637335800000, end: 1637337600000, booked: false },
-      { start: 1637337600000, end: 1637339400000, booked: false },
-      { start: 1637339400000, end: 1637341200000, booked: false },
-      { start: 1637341200000, end: 1637343000000, booked: false },
+      { start: 1637335800000, end: 1637337600000, booked: "@simon8889" },
+      { start: 1637337600000, end: 1637339400000, booked: "@simon8889" },
+      { start: 1637339400000, end: 1637341200000, booked: "@simon8889" },
+      { start: 1637341200000, end: 1637343000000, booked: "@simon8889" },
     ],
   ],
 ];
@@ -995,14 +995,14 @@ let grid = [
 //   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
 // ];
 
-const hard = [
+const people = [
   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
   5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
-  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 5, 2, 4, 2, 2,
+  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 5, 2, 4, 2, 4,
 ];
 
 // const people = [
@@ -1015,6 +1015,17 @@ const hard = [
 //   5, 2, 2,
 // ];
 
+let [nbBooked, nbNotBooked] = getAvailables(grid);
+if (people.length > 0) {
+  var totalPeople = people.reduce(reducer);
+} else {
+  var totalPeople = 0;
+}
+let margin = nbNotBooked - totalPeople;
+console.log(
+  `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
+);
+
 let start = new Date();
-ftGenetic(grid, hard);
+ftGenetic(grid, people);
 console.log(`ftGenetic() ${Math.round((new Date() - start) / 1000)}s`);

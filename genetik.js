@@ -2,25 +2,32 @@ const moment = require("moment");
 const { ftGenetic } = require("./genetik3");
 // FONCTION BACKTRACKING PLACEMENT DES RDV
 
-function shuffle(array) {
-  let counter = array.length;
+// function shuffle(array) {
+//   let counter = array.length;
 
-  // While there are elements in the array
-  while (counter > 0) {
-    // Pick a random index
-    let index = Math.floor(Math.random() * counter);
+//   // While there are elements in the array
+//   while (counter > 0) {
+//     // Pick a random index
+//     let index = Math.floor(Math.random() * counter);
 
-    // Decrease counter by 1
-    counter--;
+//     // Decrease counter by 1
+//     counter--;
 
-    // And swap the last element with it
-    let temp = array[counter];
-    array[counter] = array[index];
-    array[index] = temp;
-  }
+//     // And swap the last element with it
+//     let temp = array[counter];
+//     array[counter] = array[index];
+//     array[index] = temp;
+//   }
 
-  return array;
-}
+//   return array;
+// }
+const shuffle = (arr) =>
+  arr.reduceRight(
+    (r, _, __, s) => (
+      r.push(s.splice(0 | (Math.random() * s.length), 1)[0]), r
+    ),
+    []
+  );
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
