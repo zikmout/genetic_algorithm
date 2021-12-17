@@ -324,7 +324,7 @@ const ftGenetic = (grid, people) => {
                     a,
                     values[0]
                   );
-                  sl = values[0] + values[1];
+                  sl = values[0] + values[1] + 1;
                 }
               }
             }
