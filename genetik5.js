@@ -190,7 +190,6 @@ const ftGenetic = (grid, people) => {
       let l = 0;
 
       for (l; l < rdvLength; l++) {
-        // console.log(`sl = ${sl}`);
         if (!grid[s][a][sl + l]) {
           return false;
         }
@@ -220,36 +219,7 @@ const ftGenetic = (grid, people) => {
           score += 1;
         }
       });
-
-      // console.log(
-      //   `originPeople : ${JSON.stringify(
-      //     originPeople.sort(function (a, b) {
-      //       return b - a;
-      //     })
-      //   )}`
-      // );
-      // console.log(
-      //   `people       : ${JSON.stringify(
-      //     people.sort(function (a, b) {
-      //       return b - a;
-      //     })
-      //   )}`
-      // );
       return originPeople.length - score;
-      // let cp = [...originPeople];
-      // people.forEach((p) => {
-      //   if (cp.includes(p)) {
-      //     let pplIdx = cp.indexOf(p);
-      //     cp.splice(pplIdx, 1);
-      //   }
-      // });
-      // console.log(
-      //   `------> conflicts : ${cp.length}, score : ${
-      //     originPeople.length - score + 1
-      //   }`
-      // );
-      // throw new Error();
-      // return cp.length;
     }
 
     getFitness() {
@@ -376,7 +346,7 @@ const ftGenetic = (grid, people) => {
                 shuffledPeople,
                 s,
                 a,
-                values[0] + values[1] + 1,
+                values[0] + values[1],
                 placedPeople
               );
             }
@@ -388,10 +358,7 @@ const ftGenetic = (grid, people) => {
     initialize() {
       let shuffledPeople = shuffle([...this.data.people]);
       let placedPeople = [];
-      // console.log(`placedPeople : ${JSON.stringify(placedPeople)}`);
-
       this.ftRecFill(shuffledPeople, 0, 0, 0, placedPeople);
-
       return this;
     }
 
@@ -517,58 +484,9 @@ const ftGenetic = (grid, people) => {
           }
         }
       }
-      // console.log(
-      //   `PEOPLE1: ${this.data.people.sort(function (a, b) {
-      //     return b - a;
-      //   })}`
-      // );
-      // console.log(
-      //   `PEOPLE2: ${people.sort(function (a, b) {
-      //     return b - a;
-      //   })}`
-      // );
       this.numbOfConflicts = this.calculateConflicts(this.data.people, people);
-      // console.log(`nbOfConflicts : ${this.numbOfConflicts}`);
       return parseFloat((1 / (1.0 * this.numbOfConflicts + 1)).toFixed(10));
     }
-
-    // calculateFitness() {
-    //   let ranName = undefined;
-    //   let counter = 0;
-    //   let people = [];
-    //   let ppl = [];
-    //   for (let s = 0; s < this.data.grid.length; s++) {
-    //     for (let a = 0; a < this.data.grid[s].length; a++) {
-    //       for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
-    //         if (this.data.grid[s][a][sl].booked !== false) {
-    //           ppl.push(this.data.grid[s][a][sl].booked);
-    //           ranName = this.data.grid[s][a][sl].booked;
-    //           counter += 1;
-    //           if (
-    //             !this.data.grid[s][a][sl + 1] ||
-    //             ranName !== this.data.grid[s][a][sl + 1].booked
-    //           ) {
-    //             people.push(counter);
-    //             counter = 0;
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    //   // console.log(
-    //   //   `PEOPLE1: ${this.data.people.sort(function (a, b) {
-    //   //     return b - a;
-    //   //   })}`
-    //   // );
-    //   // console.log(
-    //   //   `PEOPLE2: ${people.sort(function (a, b) {
-    //   //     return b - a;
-    //   //   })}`
-    //   // );
-    //   this.numbOfConflicts = this.calculateConflicts(this.data.people, people);
-    //   // console.log(`nbOfConflicts : ${this.numbOfConflicts}`);
-    //   return parseFloat((1 / (1.0 * this.numbOfConflicts + 1)).toFixed(10));
-    // }
   }
 
   class Population {
@@ -600,6 +518,8 @@ const ftGenetic = (grid, people) => {
       }
 
       for (let i = NUMB_OF_ELITE_SCHEDULES; i < POPULATION_SIZE; i++) {
+        // let schedule1 = pop.getSchedules()[0];
+        // let schedule2 = pop.getSchedules()[0];
         let schedule1 = this.selectTournamentPopulation(pop).getSchedules()[0];
         let schedule2 = this.selectTournamentPopulation(pop).getSchedules()[0];
         crossoverPop
