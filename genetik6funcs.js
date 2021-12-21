@@ -1,36 +1,11 @@
 const moment = require("moment");
 const deepcopy = require("deepcopy");
+const { shuffle, throwErr, grid, people } = require("./genetik6");
 
 // Utils
 const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
-// const shuffle = (array) => {
-//   let counter = array.length;
-
-//   // While there are elements in the array
-//   while (counter > 0) {
-//     // Pick a random index
-//     let index = Math.floor(Math.random() * counter);
-
-//     // Decrease counter by 1
-//     counter--;
-
-//     // And swap the last element with it
-//     let temp = array[counter];
-//     array[counter] = array[index];
-//     array[index] = temp;
-//   }
-
-//   return array;
-// };
-const shuffle = (arr) =>
-  arr.reduceRight(
-    (r, _, __, s) => (
-      r.push(s.splice(0 | (Math.random() * s.length), 1)[0]), r
-    ),
-    []
-  );
 
 const printSchedulesFitness = (schedules) => {
   schedules.forEach((schedule) => {
@@ -65,13 +40,12 @@ const getAvailables = (grid) => {
 };
 const reducer = (accumulator, currentValue) => accumulator + currentValue;
 // Parameters
-POPULATION_SIZE = 90;
-NUMB_OF_ELITE_SCHEDULES = 10;
-TOURNAMENT_SELECTION_SIZE = 10;
-MUTATION_RATE = 0.05; // Mutation should not happen ofter because creates noise
+POPULATION_SIZE = 9;
+NUMB_OF_ELITE_SCHEDULES = 1;
+TOURNAMENT_SELECTION_SIZE = 2;
+MUTATION_RATE = 0.1; // Mutation should not happen ofter because creates noise
 
 // Algorithm Classes
-
 const ftGenetic = (grid, people) => {
   const amos = ["JB", "PD", "KM", "JY", "AF", "SS"];
   class Data {
@@ -154,7 +128,7 @@ const ftGenetic = (grid, people) => {
     }
 
     getPeople() {
-      return this.people;
+      return [...this.people];
     }
   }
 
@@ -196,44 +170,15 @@ const ftGenetic = (grid, people) => {
 
     calculateConflicts(originPeople, people) {
       let score = 0;
-      let ppl = [...people];
       originPeople.forEach((op) => {
-        let pplIdx = ppl.indexOf(op);
+        let pplIdx = people.indexOf(op);
         if (pplIdx !== -1) {
-          ppl.splice(pplIdx, 1);
+          people.splice(pplIdx, 1);
           score += 1;
         }
       });
 
-      // console.log(
-      //   `originPeople : ${JSON.stringify(
-      //     originPeople.sort(function (a, b) {
-      //       return b - a;
-      //     })
-      //   )}`
-      // );
-      // console.log(
-      //   `people       : ${JSON.stringify(
-      //     people.sort(function (a, b) {
-      //       return b - a;
-      //     })
-      //   )}`
-      // );
       return originPeople.length - score;
-      // let cp = [...originPeople];
-      // people.forEach((p) => {
-      //   if (cp.includes(p)) {
-      //     let pplIdx = cp.indexOf(p);
-      //     cp.splice(pplIdx, 1);
-      //   }
-      // });
-      // console.log(
-      //   `------> conflicts : ${cp.length}, score : ${
-      //     originPeople.length - score + 1
-      //   }`
-      // );
-      // throw new Error();
-      // return cp.length;
     }
 
     getFitness() {
@@ -316,51 +261,76 @@ const ftGenetic = (grid, people) => {
     }
 
     initialize() {
-      // let shuffledPeople = shuffle(this.data.people);
-      let shuffledPeople = shuffle([...this.data.people]);
-      // console.log(`shuffledPeople : ${shuffledPeople}`);
-
-      for (let i = 0; i < shuffledPeople.length; i++) {
-        for (let s = 0; s < this.data.grid.length; s++) {
-          for (let a = 0; a < this.data.grid[s].length; a++) {
-            for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
-              if (
-                this.data.grid[s][a][sl].booked === false ||
-                this.data.grid[s][a][sl][0] !== "@"
-              ) {
-                let values = this.advanceTrous(
-                  this.data.grid,
-                  s,
-                  a,
-                  sl,
-                  shuffledPeople[i]
-                );
-                if (values[0] !== "S" && values[1] !== "S") {
-                  let ranName = Math.random()
-                    .toString(36)
-                    .replace(/[^a-z]+/g, "")
-                    .substr(0, 5);
-                  this.fillGridBooked(
-                    ranName,
-                    shuffledPeople[i],
-                    this.data.grid,
-                    s,
-                    a,
-                    values[0]
-                  );
-                  sl = values[0] + values[1] + 1;
-                  i++;
-                }
-              }
-            }
-          }
-        }
-      }
+      // console.log(`voun`);
+      // shuffle(this.data.people);
+      let S = [];
+      let pas = 1800;
+      let nbSolutions = getRandomInt(40, 60);
+      let bb = throwErr(
+        0,
+        this.data.copyGrid(this.data.grid),
+        [...this.data.people],
+        S,
+        pas,
+        false,
+        false,
+        nbSolutions,
+        false
+      );
+      // console.log(`JSON grid : ${JSON.stringify(this.data.grid)}`);
+      this.data.grid = this.data.copyGrid(bb);
+      this.isFitnessChanged = true;
+      this.getFitness();
+      // console.log(`fitness : ${this.getFitness()}`);
       // this.data.printGrid();
-      // console.log(`this.getFitness() : ${this.getFitness()}`);
       // throw new Error();
+      // console.log(`this.getFitness() : ${this.getFitness()}`);
       return this;
+      // console.log(`ss -> ${JSON.stringify(bb)}`);
     }
+
+    // initialize() {
+    //   // let shuffledPeople = shuffle(this.data.people);
+    //   let shuffledPeople = shuffle([...this.data.people]);
+
+    //   for (let i = 0; i < shuffledPeople.length; i++) {
+    //     for (let s = 0; s < this.data.grid.length; s++) {
+    //       for (let a = 0; a < this.data.grid[s].length; a++) {
+    //         for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
+    //           if (this.data.grid[s][a][sl].booked === false) {
+    //             let values = this.advanceTrous(
+    //               this.data.grid,
+    //               s,
+    //               a,
+    //               sl,
+    //               shuffledPeople[i]
+    //             );
+    //             if (values[0] !== "S" && values[1] !== "S") {
+    //               let ranName = Math.random()
+    //                 .toString(36)
+    //                 .replace(/[^a-z]+/g, "")
+    //                 .substr(0, 5);
+    //               this.fillGridBooked(
+    //                 ranName,
+    //                 shuffledPeople[i],
+    //                 this.data.grid,
+    //                 s,
+    //                 a,
+    //                 values[0]
+    //               );
+    //               sl = values[0] + values[1];
+    //               i++;
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // this.data.printGrid();
+    //   // console.log(`this.getFitness() : ${this.getFitness()}`);
+    //   // throw new Error();
+    //   return this;
+    // }
 
     calculateFitness() {
       let ranName = undefined;
@@ -509,8 +479,9 @@ const ftGenetic = (grid, people) => {
   let generationNumber = 0;
   console.log(`\n> Generation # ${generationNumber}`);
 
+  // console.log(population.getSchedules());
   sortSchedulesByFitness(population.getSchedules());
-  console.log(population.getSchedules()[0].fitness);
+  console.log(population.getSchedules()[0].getFitness());
   // printSchedulesFitness(population.getSchedules());
   let geneticAlgorithm = new GeneticAlgorithm();
 
@@ -527,4 +498,17 @@ const ftGenetic = (grid, people) => {
   return population.getSchedules()[0].data.getGrid();
 };
 
-module.exports = { ftGenetic, getAvailables, reducer };
+ftGenetic(grid, people);
+
+// let S = [];
+
+// let bb = throwErr(0, grid, people, S, pas, false, false, nbSolutions, false);
+
+// console.log(`RETOUR : ${bb}`);
+// bb = JSON.parse(bb);
+// printGrid(bb);
+
+// let conflicts = getNbOfConflicts2(bb, people);
+// console.log(`conflicts : ${conflicts} (people : ${JSON.stringify(people)})`);
+
+module.exports = { ftGenetic, getAvailables, reducer, shuffle };
