@@ -65,10 +65,10 @@ const getAvailables = (grid) => {
 };
 const reducer = (accumulator, currentValue) => accumulator + currentValue;
 // Parameters
-POPULATION_SIZE = 90;
-NUMB_OF_ELITE_SCHEDULES = 10;
-TOURNAMENT_SELECTION_SIZE = 10;
-MUTATION_RATE = 0.05; // Mutation should not happen ofter because creates noise
+POPULATION_SIZE = 70;
+NUMB_OF_ELITE_SCHEDULES = 5;
+TOURNAMENT_SELECTION_SIZE = 5;
+MUTATION_RATE = 0.1; // Mutation should not happen ofter because creates noise
 
 // Algorithm Classes
 
@@ -181,6 +181,22 @@ const ftGenetic = (grid, people) => {
       for (let l = 0; l < length; l++) {
         grid[shift][amo][slot + l].booked = name;
       }
+    };
+
+    fit2 = (grid, shift, amo, slot, rdvLength) => {
+      let s = shift;
+      let a = amo;
+      let sl = slot;
+      let l = 0;
+
+      for (l; l < rdvLength; l++) {
+        // console.log(`sl = ${sl}`);
+        if (!grid[s][a][sl + l]) {
+          return false;
+        }
+      }
+
+      return true;
     };
 
     constructor(data) {
@@ -315,52 +331,168 @@ const ftGenetic = (grid, people) => {
       return ["S", "S"];
     }
 
-    initialize() {
-      // let shuffledPeople = shuffle(this.data.people);
-      let shuffledPeople = shuffle([...this.data.people]);
-      // console.log(`shuffledPeople : ${shuffledPeople}`);
+    ftRecFill(shuffledPeople, s, a, sl, placedPeople) {
+      if (!this.data.grid[s][a][sl]) {
+        if (this.data.grid[s][a + 1]) {
+          this.ftRecFill(shuffledPeople, s, a + 1, 0, placedPeople);
+        } else if (this.data.grid[s + 1]) {
+          this.ftRecFill(shuffledPeople, s + 1, 0, 0, placedPeople);
+        } else {
+          return;
+        }
+      } else {
+        for (let i = 0; i < shuffledPeople.length; i++) {
+          if (
+            this.data.grid[s][a][sl].booked === false ||
+            this.data.grid[s][a][sl][0] !== "@"
+          ) {
+            let values = this.advanceTrous(
+              this.data.grid,
+              s,
+              a,
+              sl,
+              shuffledPeople[i]
+            );
 
-      for (let i = 0; i < shuffledPeople.length; i++) {
-        for (let s = 0; s < this.data.grid.length; s++) {
-          for (let a = 0; a < this.data.grid[s].length; a++) {
-            for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
-              if (
-                this.data.grid[s][a][sl].booked === false ||
-                this.data.grid[s][a][sl][0] !== "@"
-              ) {
-                let values = this.advanceTrous(
-                  this.data.grid,
-                  s,
-                  a,
-                  sl,
-                  shuffledPeople[i]
-                );
-                if (values[0] !== "S" && values[1] !== "S") {
-                  let ranName = Math.random()
-                    .toString(36)
-                    .replace(/[^a-z]+/g, "")
-                    .substr(0, 5);
-                  this.fillGridBooked(
-                    ranName,
-                    shuffledPeople[i],
-                    this.data.grid,
-                    s,
-                    a,
-                    values[0]
-                  );
-                  sl = values[0] + values[1] + 1;
-                  i++;
-                }
-              }
+            if (values[0] !== "S" && values[1] !== "S") {
+              let ranName = Math.random()
+                .toString(36)
+                .replace(/[^a-z]+/g, "")
+                .substr(0, 5);
+              this.fillGridBooked(
+                ranName,
+                shuffledPeople[i],
+                this.data.grid,
+                s,
+                a,
+                values[0]
+              );
+              // console.log(`placePeople : ${JSON.stringify(placedPeople)}`);
+              placedPeople.push(shuffledPeople[i]);
+              let pplIdx = shuffledPeople.indexOf(shuffledPeople[i]);
+              shuffledPeople.splice(pplIdx, 1);
+
+              this.ftRecFill(
+                shuffledPeople,
+                s,
+                a,
+                values[0] + values[1] + 1,
+                placedPeople
+              );
             }
           }
         }
       }
-      // this.data.printGrid();
-      // console.log(`this.getFitness() : ${this.getFitness()}`);
-      // throw new Error();
+    }
+
+    initialize() {
+      let shuffledPeople = shuffle([...this.data.people]);
+      let placedPeople = [];
+      // console.log(`placedPeople : ${JSON.stringify(placedPeople)}`);
+
+      this.ftRecFill(shuffledPeople, 0, 0, 0, placedPeople);
+
       return this;
     }
+
+    // initialize() {
+    //   // let placedPeople = [];
+    //   // if (Math.random() > 0.5) {
+    //   //   let shuffledPeople = shuffle([...this.data.people]);
+    //   //   for (let i = 0; i < shuffledPeople.length; i++) {
+    //   //     while (42) {
+    //   //       let ranName = Math.random()
+    //   //         .toString(36)
+    //   //         .replace(/[^a-z]+/g, "")
+    //   //         .substr(0, 5);
+    //   //       let ranShift = getRandomInt(0, this.data.grid.length - 1);
+    //   //       let ranAmo = getRandomInt(0, this.data.grid[ranShift].length - 1);
+    //   //       let ranSlot = getRandomInt(
+    //   //         0,
+    //   //         this.data.grid[ranShift][ranAmo].length - 1
+    //   //       );
+
+    //   //       if (
+    //   //         this.fit2(
+    //   //           this.data.grid,
+    //   //           ranShift,
+    //   //           ranAmo,
+    //   //           ranSlot,
+    //   //           shuffledPeople[i]
+    //   //         ) === true
+    //   //       ) {
+    //   //         this.fillGridBooked(
+    //   //           ranName,
+    //   //           shuffledPeople[i],
+    //   //           this.data.grid,
+    //   //           ranShift,
+    //   //           ranAmo,
+    //   //           ranSlot
+    //   //         );
+    //   //         placedPeople.push(shuffledPeople[i]);
+    //   //         break;
+    //   //       }
+    //   //     }
+    //   //   }
+    //   // } else {
+    //   let shuffledPeople = shuffle([...this.data.people]);
+    //   let placedPeople = [];
+    //   // console.log(`shuffledPeople : ${shuffledPeople}`);
+
+    //   for (let i = 0; i < shuffledPeople.length; i++) {
+    //     for (let s = 0; s < this.data.grid.length; s++) {
+    //       for (let a = 0; a < this.data.grid[s].length; a++) {
+    //         for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
+    //           if (
+    //             this.data.grid[s][a][sl].booked === false ||
+    //             this.data.grid[s][a][sl][0] !== "@"
+    //           ) {
+    //             let values = this.advanceTrous(
+    //               this.data.grid,
+    //               s,
+    //               a,
+    //               sl,
+    //               shuffledPeople[i]
+    //             );
+    //             if (values[0] !== "S" && values[1] !== "S") {
+    //               let ranName = Math.random()
+    //                 .toString(36)
+    //                 .replace(/[^a-z]+/g, "")
+    //                 .substr(0, 5);
+    //               this.fillGridBooked(
+    //                 ranName,
+    //                 shuffledPeople[i],
+    //                 this.data.grid,
+    //                 s,
+    //                 a,
+    //                 values[0]
+    //               );
+    //               placedPeople.push(shuffledPeople[i]);
+
+    //               sl = values[0] + values[1] + 1;
+    //               i++;
+    //               continue;
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // }
+
+    //   // let shuffledPeople = shuffle(this.data.people);
+
+    //   // this.data.printGrid();
+    //   // console.log(
+    //   //   `this.conflicts () : ${this.calculateConflicts(
+    //   //     [...this.data.people],
+    //   //     placedPeople
+    //   //   )}`
+    //   // );
+    //   // console.log(`this.getFitness() : ${this.getFitness()}`);
+    //   // throw new Error();
+    //   return this;
+    // }
 
     calculateFitness() {
       let ranName = undefined;
@@ -399,6 +531,44 @@ const ftGenetic = (grid, people) => {
       // console.log(`nbOfConflicts : ${this.numbOfConflicts}`);
       return parseFloat((1 / (1.0 * this.numbOfConflicts + 1)).toFixed(10));
     }
+
+    // calculateFitness() {
+    //   let ranName = undefined;
+    //   let counter = 0;
+    //   let people = [];
+    //   let ppl = [];
+    //   for (let s = 0; s < this.data.grid.length; s++) {
+    //     for (let a = 0; a < this.data.grid[s].length; a++) {
+    //       for (let sl = 0; sl < this.data.grid[s][a].length; sl++) {
+    //         if (this.data.grid[s][a][sl].booked !== false) {
+    //           ppl.push(this.data.grid[s][a][sl].booked);
+    //           ranName = this.data.grid[s][a][sl].booked;
+    //           counter += 1;
+    //           if (
+    //             !this.data.grid[s][a][sl + 1] ||
+    //             ranName !== this.data.grid[s][a][sl + 1].booked
+    //           ) {
+    //             people.push(counter);
+    //             counter = 0;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // console.log(
+    //   //   `PEOPLE1: ${this.data.people.sort(function (a, b) {
+    //   //     return b - a;
+    //   //   })}`
+    //   // );
+    //   // console.log(
+    //   //   `PEOPLE2: ${people.sort(function (a, b) {
+    //   //     return b - a;
+    //   //   })}`
+    //   // );
+    //   this.numbOfConflicts = this.calculateConflicts(this.data.people, people);
+    //   // console.log(`nbOfConflicts : ${this.numbOfConflicts}`);
+    //   return parseFloat((1 / (1.0 * this.numbOfConflicts + 1)).toFixed(10));
+    // }
   }
 
   class Population {
