@@ -1,4 +1,4 @@
-const { ftGenetic, getAvailables, reducer } = require("./genetik7");
+const { ftGenetic, getAvailables, reducer } = require("./genetik5");
 
 let grid = [
   [
