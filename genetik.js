@@ -314,8 +314,19 @@ const solveRdv = (grid, people, pas, nbSolutions, accept_trous, rdvLength) => {
     // Get all solutions for all rdv lengths
     let setAllLengths = Array.from(new Set(people));
     for (let x = 0; x < setAllLengths.length; x++) {
-      S = giveAnswers(grid, people, pas, 1, [], accept_trous, setAllLengths[x]);
-      S1[setAllLengths[x]] = S;
+      console.log(`giveAnswer() : setAllLengths[${x}] = ${setAllLengths[x]}`);
+      S1 = giveAnswers(
+        grid,
+        people,
+        pas,
+        1,
+        [],
+        accept_trous,
+        setAllLengths[x],
+        S1,
+        setAllLengths
+      );
+      // S1[setAllLengths[x]] = S;
     }
   }
 
@@ -329,7 +340,9 @@ const giveAnswers = (
   nbSolutions,
   broadcastList,
   accept_trous,
-  rdvLength
+  rdvLength,
+  S1,
+  setAllLengths
 ) => {
   const initRdvLength = rdvLength;
   const initGrid = copyGrid(grid);
@@ -338,7 +351,6 @@ const giveAnswers = (
   // );
 
   let [nbBooked, nbNotBooked] = getAvailables(grid);
-  var S1 = [];
   let S = [];
   const pruned = false;
   const verbose = false;
@@ -362,9 +374,30 @@ const giveAnswers = (
   if (margin < 0) {
     return [];
   }
+  S1[rdvLength] = [];
+  const isAlreadyFoundSolution = (start) => {
+    let ret = S1[rdvLength].find((x) => x.start === start);
+    if (ret !== undefined) {
+      console.log(`Already found`);
+    }
+    if (ret !== undefined) return true;
 
-  const isAlreadyFoundSolution = (starts, start) => {
-    return starts.find((x) => x.start === start);
+    // setAllLengths.forEach((len) => {
+    //   console.log(`len : ${len}`);
+    //   console.log(`rdvLength : ${rdvLength}`);
+    //   console.log(`S1[len] : ${JSON.stringify(S1[len])}`);
+    //   if (
+    //     len !== rdvLength &&
+    //     S1[len] !== undefined &&
+    //     S1[len].find((x) => x.start === start && x.length === rdvLength)
+    //   ) {
+    //     console.log(`pass here`);
+    //     return true;
+    //   }
+    // });
+
+    // console.log(`ret ==> ${JSON.stringify(ret)}`);
+    return ret;
   };
 
   let starts = [];
@@ -374,8 +407,9 @@ const giveAnswers = (
       // console.log(`loop amo`);
       for (let sl = 0; sl < initGrid[shift][amo].length; sl++) {
         // console.log(`push end : ${new Date().getTime()}`);
+
         if (
-          !isAlreadyFoundSolution(starts, initGrid[shift][amo][sl].start) &&
+          !isAlreadyFoundSolution(initGrid[shift][amo][sl].start) &&
           fit(initGrid, shift, amo, sl, rdvLength)
         ) {
           S = [];
@@ -392,7 +426,7 @@ const giveAnswers = (
           for (var i = 0; i < people.length; i++) pc[i] = people[i];
           let pplIdx = pc.indexOf(rdvLength);
           pc.splice(pplIdx, 1);
-
+          // printGrid(newGrid);
           // ftRec(
           //   copyGrid(newGrid),
           //   0,
@@ -408,20 +442,56 @@ const giveAnswers = (
           //   pruned
           // );
 
-          [S] = ftGenetic(copyGrid(newGrid), pc);
+          console.log(`grid[${shift}][${amo}][${sl}]`);
+          S[0] = ftGenetic(copyGrid(newGrid), pc);
 
-          // printGrid(S[0])
-          // console.log(`ftRec() : ${S.length}`);
+          let amoSlots = getAmoAgendas(S, pas);
+          let slots = getSlotsForLength(amoSlots, rdvLength);
+
+          slots.forEach((slot) => {
+            if (S1[rdvLength].find((_) => !(_.start === slot.start))) {
+              // console.log("TOIOITOITOI");
+              starts.push({
+                start: slot.start,
+                amoNb: slot.amoNb,
+                length: rdvLength,
+                booked: false,
+              });
+            }
+          });
 
           if (S.length !== 0) {
-            // console.log(`S null`);
             starts.push({
               start: initGrid[shift][amo][sl].start,
               amoNb: amo,
               length: rdvLength,
               booked: false,
             });
+            S1[rdvLength] = starts;
+            // console.log(JSON.stringify(S[0]));
+            // console.log(
+            //   `---- Choix proposé(s) : ${filters.length} (durée = ${rdvLength})`
+            // );
+
+            // return;
+          } else {
+            console.log(`S null`);
           }
+
+          // printGrid(S[0]);
+          // throw new Error();
+          // printGrid(S[0])
+          // console.log(`ftRec() : ${S.length}`);
+
+          // if (S.length !== 0) {
+          //   // console.log(`S null`);
+          //   starts.push({
+          //     start: initGrid[shift][amo][sl].start,
+          //     amoNb: amo,
+          //     length: rdvLength,
+          //     booked: false,
+          //   });
+          // }
         }
       }
     }
@@ -429,7 +499,8 @@ const giveAnswers = (
   console.log(
     `giveAnswer() : ${Math.round((new Date().getTime() - start) / 1000)}s`
   );
-  return starts;
+  S1[rdvLength] = starts;
+  return S1;
 };
 
 const advance = (
@@ -765,9 +836,9 @@ const ftRec = (
       // A retirer plus tard
       // Ou a ajuster de manière dynamique
       // (j'aimerais bien le mettre car je pense que c'est plus opti)
-      //   if (getRandomInt(100) !== 0) {
-      //     break;
-      //   }
+      if (getRandomInt(50) !== 0) {
+        break;
+      }
     }
   }
 };
@@ -792,8 +863,8 @@ let pas = 1800;
 let grid = [
   [
     [
-      { start: 1635751800000, end: 1635753600000, booked: false },
-      { start: 1635753600000, end: 1635755400000, booked: false },
+      { start: 1635751800000, end: 1635753600000, booked: "@zak" },
+      { start: 1635753600000, end: 1635755400000, booked: "@zak" },
       { start: 1635755400000, end: 1635757200000, booked: false },
       { start: 1635757200000, end: 1635759000000, booked: false },
       { start: 1635759000000, end: 1635760800000, booked: false },
@@ -1768,10 +1839,10 @@ let grid = [
       { start: 1637330400000, end: 1637332200000, booked: false },
       { start: 1637332200000, end: 1637334000000, booked: false },
       { start: 1637334000000, end: 1637335800000, booked: false },
-      { start: 1637335800000, end: 1637337600000, booked: false },
-      { start: 1637337600000, end: 1637339400000, booked: false },
-      { start: 1637339400000, end: 1637341200000, booked: false },
-      { start: 1637341200000, end: 1637343000000, booked: false },
+      { start: 1637335800000, end: 1637337600000, booked: "@simon8889" },
+      { start: 1637337600000, end: 1637339400000, booked: "@simon8889" },
+      { start: 1637339400000, end: 1637341200000, booked: "@simon8889" },
+      { start: 1637341200000, end: 1637343000000, booked: "@simon8889" },
     ],
   ],
 ];
@@ -1784,23 +1855,23 @@ let grid = [
 // Ici comme le pas est de 1800 (30 minutes), 5 correpond à 5*30 min = 2h30
 // pour 2 c'est 1h
 // etc, etc ...
-let people = [
-  5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
-  5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
-  4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
-  5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-  5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
-];
-
-// const people = [
+// let people = [
 //   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
 //   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
 //   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
 //   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4,
-//   5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3,
-//   5, 2, 2,
+//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
 // ];
+
+const people = [
+  5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
+  5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
+  4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
+  5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
+  5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
+  2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
+  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
+];
 // Nombre de solutions nécessaires pour sortir de la récursive
 // Pas besoin de plus de 1 car je loope à travers la grille et j'execute
 // l'algortihme de backtracking sur tous les slots possibles
