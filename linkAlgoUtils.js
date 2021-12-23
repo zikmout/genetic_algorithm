@@ -229,21 +229,13 @@ const isAvailable = (
   startLunchHours,
   startLunchMinutes,
   endLunchHours,
-  endLunchMinutes
+  endLunchMinutes,
+  startShiftHours,
+  startShiftMinutes,
+  endShiftHours,
+  endShiftMinutes
 ) => {
-  //   console.log(
-  //     `\n\nstart : ${moment.utc(start).format("DD/MM HH:mm")} - ${moment
-  //       .utc(end)
-  //       .format("HH:mm")} (startDay: ${moment(start)
-  //       .set("hour", startDayHours)
-  //       .set("minutes", startDayMinutes)
-  //       .utc()} endDay : ${moment(end)
-  //       .set("hour", endDayHours)
-  //       .set("minutes", endDayMinutes)
-  //       .utc()})`
-  //   );
-
-  // Day shifts
+  // @Break
   if (
     moment.utc(start) <
       moment(start)
@@ -253,10 +245,10 @@ const isAvailable = (
     moment.utc(start) >=
       moment(start).set("hour", endDayHours).set("minutes", endDayMinutes).utc()
   ) {
-    return "@shift";
+    return "@break";
   }
 
-  // Lunch shifts
+  // @Lunch
   if (
     moment.utc(start) >
       moment(start)
@@ -272,12 +264,35 @@ const isAvailable = (
     return "@lunch";
   }
 
-  console.log();
+  // @Shift
+  if (
+    moment.utc(start) <
+      moment(start)
+        .set("hour", startShiftHours)
+        .set("minutes", startShiftMinutes)
+        .utc() ||
+    moment.utc(start) >=
+      moment(start)
+        .set("hour", endShiftHours)
+        .set("minutes", endShiftMinutes)
+        .utc()
+  ) {
+    return "@shift";
+  }
 
   return true;
 };
 
-function mapList(grid, pas, startDay, endDay, startLunch, endLunch) {
+function mapList(
+  grid,
+  pas,
+  startDay,
+  endDay,
+  startLunch,
+  endLunch,
+  startShift,
+  endShift
+) {
   let nbOfAmos = getAmoNb(grid);
   let planningStart = getPlanningStart(grid);
   let planningEnd = getPlanningEnd(grid);
@@ -320,6 +335,24 @@ function mapList(grid, pas, startDay, endDay, startLunch, endLunch) {
     endLunchMinutes = endLunchMinutes[1];
   }
 
+  let startShiftHours = startShift.split(":")[0];
+  if (startShiftHours.startsWith(`0`)) {
+    startShiftHours = startShiftHours[1];
+  }
+  let startShiftMinutes = startShift.split(":")[1];
+  if (startShiftMinutes.startsWith(`0`)) {
+    startShiftMinutes = startShiftMinutes[1];
+  }
+
+  let endShiftHours = endShift.split(":")[0];
+  if (endShiftHours.startsWith(`0`)) {
+    endShiftHours = endshiftHours[1];
+  }
+  let endShiftMinutes = startShift.split(":")[1];
+  if (endShiftMinutes.startsWith(`0`)) {
+    endShiftMinutes = endShiftMinutes[1];
+  }
+
   let amoLists = [];
 
   console.log(
@@ -327,6 +360,18 @@ function mapList(grid, pas, startDay, endDay, startLunch, endLunch) {
       (planningEnd - planningStart) / (pas * 1000)
     }\n\n`
   );
+
+  // Start of planning must be end of shifts
+  planningStart = moment(planningStart)
+    .set("hour", startDayHours)
+    .set("minutes", startDayMinutes)
+    .utc();
+
+  // End of planning must be end of shifts
+  planningEnd = moment(planningEnd)
+    .set("hour", endDayHours)
+    .set("minutes", endDayMinutes)
+    .utc();
 
   // Creation des listes chainees, une pour chaque AMO
   for (let i = 0; i < nbOfAmos; i++) {
@@ -346,7 +391,11 @@ function mapList(grid, pas, startDay, endDay, startLunch, endLunch) {
         startLunchHours,
         startLunchMinutes,
         endLunchHours,
-        endLunchMinutes
+        endLunchMinutes,
+        startShiftHours,
+        startShiftMinutes,
+        endShiftHours,
+        endShiftMinutes
       );
 
       newLinkedList.add({

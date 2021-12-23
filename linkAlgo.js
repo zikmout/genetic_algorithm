@@ -1020,10 +1020,21 @@ let start = new Date();
 
 let startDay = "06:00";
 let endDay = "20:00";
+let startShift = "08:30";
+let endShift = "18:30";
 let startLunch = "12:30";
 let endLunch = "13:30";
 
-let list = mapList(grid, pas, startDay, endDay, startLunch, endLunch);
+let list = mapList(
+  grid,
+  pas,
+  startDay,
+  endDay,
+  startLunch,
+  endLunch,
+  startShift,
+  endShift
+);
 // console.log(JSON.stringify(list));
 list[0].printList();
 
