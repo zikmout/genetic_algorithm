@@ -1018,8 +1018,13 @@ console.log(
 let start = new Date();
 // ftLinkGenetic(grid, people);
 
-let list = mapList(grid, pas);
-console.log(JSON.stringify(list));
+let startDay = "06:00";
+let endDay = "20:00";
+let startLunch = "12:30";
+let endLunch = "13:30";
+
+let list = mapList(grid, pas, startDay, endDay, startLunch, endLunch);
+// console.log(JSON.stringify(list));
 list[0].printList();
 
-console.log(`\n\nftGenetic() ${Math.round((new Date() - start) / 1000)}s`);
+console.log(`\n\nftGenetic() ${Math.round(new Date() - start)} ms`);

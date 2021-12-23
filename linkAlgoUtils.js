@@ -87,8 +87,7 @@ class LinkedList {
     let planningStart = this.planningStart;
     let planningEnd = this.planningEnd;
     let currentNode = this.head;
-    while (!!currentNode.next) {
-      currentNode = currentNode.next;
+    while (!!currentNode) {
       console.log(
         `${moment
           .utc(planningStart + currentNode.data.start)
@@ -96,6 +95,7 @@ class LinkedList {
           .utc(planningStart + currentNode.data.end)
           .format("DD/MM HH:mm")}    :    ${currentNode.data.booked}`
       );
+      currentNode = currentNode.next;
     }
   }
 
@@ -219,29 +219,143 @@ function mapSort(linkedList) {
   return sortedList;
 }
 
-function mapList(grid, pas) {
+const isAvailable = (
+  start,
+  end,
+  startDayHours,
+  endDayHours,
+  startDayMinutes,
+  endDayMinutes,
+  startLunchHours,
+  startLunchMinutes,
+  endLunchHours,
+  endLunchMinutes
+) => {
+  //   console.log(
+  //     `\n\nstart : ${moment.utc(start).format("DD/MM HH:mm")} - ${moment
+  //       .utc(end)
+  //       .format("HH:mm")} (startDay: ${moment(start)
+  //       .set("hour", startDayHours)
+  //       .set("minutes", startDayMinutes)
+  //       .utc()} endDay : ${moment(end)
+  //       .set("hour", endDayHours)
+  //       .set("minutes", endDayMinutes)
+  //       .utc()})`
+  //   );
+
+  // Day shifts
+  if (
+    moment.utc(start) <
+      moment(start)
+        .set("hour", startDayHours)
+        .set("minutes", startDayMinutes)
+        .utc() ||
+    moment.utc(start) >=
+      moment(start).set("hour", endDayHours).set("minutes", endDayMinutes).utc()
+  ) {
+    return "@shift";
+  }
+
+  // Lunch shifts
+  if (
+    moment.utc(start) >
+      moment(start)
+        .set("hour", startLunchHours)
+        .set("minutes", startLunchMinutes)
+        .utc() &&
+    moment.utc(start) <=
+      moment(start)
+        .set("hour", endLunchHours)
+        .set("minutes", endLunchMinutes)
+        .utc()
+  ) {
+    return "@lunch";
+  }
+
+  console.log();
+
+  return true;
+};
+
+function mapList(grid, pas, startDay, endDay, startLunch, endLunch) {
   let nbOfAmos = getAmoNb(grid);
   let planningStart = getPlanningStart(grid);
   let planningEnd = getPlanningEnd(grid);
+
+  let startDayHours = startDay.split(":")[0];
+  if (startDayHours.startsWith(`0`)) {
+    startDayHours = startDayHours[1];
+  }
+
+  let startDayMinutes = startDay.split(":")[1];
+  if (startDayMinutes.startsWith(`0`)) {
+    startDayMinutes = startDayMinutes[1];
+  }
+
+  let endDayHours = endDay.split(":")[0];
+  if (endDayHours.startsWith(`0`)) {
+    endDayHours = endDayHours[1];
+  }
+
+  let endDayMinutes = endDay.split(":")[1];
+  if (endDayMinutes.startsWith(`0`)) {
+    endDayMinutes = endDayMinutes[1];
+  }
+
+  let startLunchHours = startLunch.split(":")[0];
+  if (startLunchHours.startsWith(`0`)) {
+    startLunchHours = startLunchHours[1];
+  }
+  let startLunchMinutes = startDay.split(":")[1];
+  if (startLunchMinutes.startsWith(`0`)) {
+    startLunchMinutes = startLunchMinutes[1];
+  }
+
+  let endLunchHours = endLunch.split(":")[0];
+  if (endLunchHours.startsWith(`0`)) {
+    endLunchHours = endLunchHours[1];
+  }
+  let endLunchMinutes = startDay.split(":")[1];
+  if (endLunchMinutes.startsWith(`0`)) {
+    endLunchMinutes = endLunchMinutes[1];
+  }
+
   let amoLists = [];
+
   console.log(
     `mapList() : ${nbOfAmos} amos, planningStart: ${planningStart}, planningEnd: ${planningEnd}, nbSlots = ${
       (planningEnd - planningStart) / (pas * 1000)
-    }`
+    }\n\n`
   );
 
   // Creation des listes chainees, une pour chaque AMO
   for (let i = 0; i < nbOfAmos; i++) {
     let newLinkedList = new LinkedList(i, planningStart, planningEnd, pas);
     let linkedListSize = (planningEnd - planningStart) / (pas * 1000);
-    console.log(`linkedListSize : ${linkedListSize}`);
+    console.log(`AMO ${i} linkedListSize : ${linkedListSize}`);
+
+    // Remplissage de la data avec start, end et booked
     for (let j = 0; j < linkedListSize; j++) {
+      let booked = isAvailable(
+        planningStart + j * pas * 1000,
+        planningStart + (j + 1) * pas * 1000,
+        startDayHours,
+        endDayHours,
+        startDayMinutes,
+        endDayMinutes,
+        startLunchHours,
+        startLunchMinutes,
+        endLunchHours,
+        endLunchMinutes
+      );
+
       newLinkedList.add({
         start: j * pas * 1000,
         end: (j + 1) * pas * 1000,
-        booked: false,
+        booked: booked,
       });
     }
+
     amoLists.push(newLinkedList);
   }
 
