@@ -1,4 +1,9 @@
-const { ftGenetic, getAvailables, reducer } = require("./linkAlgoUtils");
+const {
+  ftGenetic,
+  getAvailables,
+  reducer,
+  mapList,
+} = require("./linkAlgoUtils");
 
 let grid = [
   [
@@ -997,6 +1002,8 @@ const people = [
   2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
 ];
 
+let pas = 1800;
+
 let [nbBooked, nbNotBooked] = getAvailables(grid);
 if (people.length > 0) {
   var totalPeople = people.reduce(reducer);
@@ -1010,4 +1017,9 @@ console.log(
 
 let start = new Date();
 // ftLinkGenetic(grid, people);
-console.log(`ftGenetic() ${Math.round((new Date() - start) / 1000)}s`);
+
+let list = mapList(grid, pas);
+console.log(JSON.stringify(list));
+list[0].printList();
+
+console.log(`\n\nftGenetic() ${Math.round((new Date() - start) / 1000)}s`);

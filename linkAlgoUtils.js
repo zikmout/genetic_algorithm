@@ -1,3 +1,55 @@
+const moment = require("moment");
+
+const getAvailables = (grid) => {
+  let nbBooked = 0;
+  let nbNotBooked = 0;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      for (let k = 0; k < grid[i][j].length; k++) {
+        if (grid[i][j][k].booked !== false) {
+          nbBooked += 1;
+        } else {
+          nbNotBooked += 1;
+        }
+      }
+    }
+  }
+  return [nbBooked, nbNotBooked];
+};
+const reducer = (accumulator, currentValue) => accumulator + currentValue;
+const getAmoNb = (grid) => {
+  let max = 0;
+  grid.map((shift) => {
+    if (shift.length >= max) {
+      max = shift.length;
+    }
+  });
+  return max;
+};
+const getPlanningStart = (grid) => {
+  if (!grid[0][0][0]) {
+    return undefined;
+  } else {
+    return grid[0][0][0].start;
+  }
+};
+const getPlanningEnd = (grid) => {
+  let tmax = 0;
+  if (!grid) {
+    return tmax;
+  } else {
+    for (let shift = 0; shift < grid.length; shift++) {
+      for (let amo = 0; amo < grid[shift].length; amo++) {
+        for (let slot = 0; slot < grid[shift][amo].length; slot++) {
+          if (grid[shift][amo][slot].end > tmax) {
+            tmax = grid[shift][amo][slot].end;
+          }
+        }
+      }
+    }
+    return tmax;
+  }
+};
 // Implementation de l'algorithme en listes chainees
 
 class ListNode {
@@ -8,10 +60,13 @@ class ListNode {
 }
 
 class LinkedList {
-  constructor(amo) {
+  constructor(amo, planningStart, planningEnd, pas) {
     this.head = null;
-    this.size = 0;
     this.amo = amo;
+    this.planningStart = planningStart;
+    this.planningEnd = planningEnd;
+    this.pas = pas;
+    this.size = 0;
   }
 
   add(data) {
@@ -26,6 +81,22 @@ class LinkedList {
       currentNode.next = newNode;
     }
     this.size++;
+  }
+
+  printList() {
+    let planningStart = this.planningStart;
+    let planningEnd = this.planningEnd;
+    let currentNode = this.head;
+    while (!!currentNode.next) {
+      currentNode = currentNode.next;
+      console.log(
+        `${moment
+          .utc(planningStart + currentNode.data.start)
+          .format("DD/MM HH:mm")}  -  ${moment
+          .utc(planningStart + currentNode.data.end)
+          .format("DD/MM HH:mm")}    :    ${currentNode.data.booked}`
+      );
+    }
   }
 
   getNodeAt(index) {
@@ -147,3 +218,36 @@ function mapSort(linkedList) {
 
   return sortedList;
 }
+
+function mapList(grid, pas) {
+  let nbOfAmos = getAmoNb(grid);
+  let planningStart = getPlanningStart(grid);
+  let planningEnd = getPlanningEnd(grid);
+  let amoLists = [];
+  console.log(
+    `mapList() : ${nbOfAmos} amos, planningStart: ${planningStart}, planningEnd: ${planningEnd}, nbSlots = ${
+      (planningEnd - planningStart) / (pas * 1000)
+    }`
+  );
+
+  // Creation des listes chainees, une pour chaque AMO
+  for (let i = 0; i < nbOfAmos; i++) {
+    let newLinkedList = new LinkedList(i, planningStart, planningEnd, pas);
+    let linkedListSize = (planningEnd - planningStart) / (pas * 1000);
+    console.log(`linkedListSize : ${linkedListSize}`);
+    for (let j = 0; j < linkedListSize; j++) {
+      newLinkedList.add({
+        start: j * pas * 1000,
+        end: (j + 1) * pas * 1000,
+        booked: false,
+      });
+    }
+    amoLists.push(newLinkedList);
+  }
+
+  // Remplissage des liste chainees
+
+  return amoLists;
+}
+
+module.exports = { LinkedList, ListNode, getAvailables, reducer, mapList };
