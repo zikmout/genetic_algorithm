@@ -99,6 +99,18 @@ class LinkedList {
     }
   }
 
+  getAvailables() {
+    let counter = 0;
+    let currentNode = this.head;
+    while (!!currentNode) {
+      if (currentNode.data.booked === false) {
+        counter = counter + 1;
+      }
+      currentNode = currentNode.next;
+    }
+    return counter;
+  }
+
   getNodeAt(index) {
     if (index < 0 || index > this.size - 1) {
       return undefined;
@@ -219,7 +231,7 @@ function mapSort(linkedList) {
   return sortedList;
 }
 
-const isAvailable = (
+const isBooked = (
   start,
   end,
   startDayHours,
@@ -280,7 +292,7 @@ const isAvailable = (
     return "@shift";
   }
 
-  return true;
+  return false;
 };
 
 function mapList(
@@ -381,7 +393,7 @@ function mapList(
 
     // Remplissage de la data avec start, end et booked
     for (let j = 0; j < linkedListSize; j++) {
-      let booked = isAvailable(
+      let booked = isBooked(
         planningStart + j * pas * 1000,
         planningStart + (j + 1) * pas * 1000,
         startDayHours,
