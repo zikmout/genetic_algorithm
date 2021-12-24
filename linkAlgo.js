@@ -5,6 +5,9 @@ const {
   mapList,
 } = require("./linkAlgoUtils");
 
+const { Planning } = require("./Planning.js");
+let start = new Date();
+
 let grid = [
   [
     [
@@ -1004,20 +1007,6 @@ const people = [
 
 let pas = 1800;
 
-let [nbBooked, nbNotBooked] = getAvailables(grid);
-if (people.length > 0) {
-  var totalPeople = people.reduce(reducer);
-} else {
-  var totalPeople = 0;
-}
-let margin = nbNotBooked - totalPeople;
-console.log(
-  `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
-);
-
-let start = new Date();
-// ftLinkGenetic(grid, people);
-
 let startDay = "06:00";
 let endDay = "20:00";
 let startShift = "08:30";
@@ -1025,21 +1014,18 @@ let endShift = "18:30";
 let startLunch = "12:30";
 let endLunch = "13:30";
 
-let list = mapList(
+let planning = new Planning(
   grid,
+  people,
   pas,
   startDay,
   endDay,
-  startLunch,
-  endLunch,
   startShift,
-  endShift
+  endShift,
+  startLunch,
+  endLunch
 );
-// console.log(JSON.stringify(list));
 
-console.log();
-for (let amoNb = 0; amoNb < list.length; amoNb++) {
-  console.log(`margin amo ${amoNb}: ${list[amoNb].getMargin()}`);
-}
-// list[0].printList();
-console.log(`\n\nftGenetic() ${Math.round(new Date() - start)} ms`);
+planning.amosList[0].printList();
+
+console.log(`\n\nlinkAlgo() ${Math.round(new Date() - start)} ms`);

@@ -1,5 +1,47 @@
 const moment = require("moment");
+const printGrid = (_shifts) => {
+  console.log(
+    `\n\n################################################### G.R.I.D ###################################################`
+  );
+  for (let shift = 0; shift < _shifts.length; shift++) {
+    console.log(
+      `\n----------\nShift ${shift} (Amo(s): ${_shifts[shift].length})\n`
+    );
+    for (let amo = 0; amo < _shifts[shift].length; amo++) {
+      console.log(`\nAMO no ${amo}\n`);
+      for (let slot = 0; slot < _shifts[shift][amo].length; slot++) {
+        console.log(
+          `[${shift}][${amo}][${slot}]  ***********  ${moment
+            .utc(_shifts[shift][amo][slot].start)
+            .format("DD/MM HH:mm")}  -  ${moment
+            .utc(_shifts[shift][amo][slot].end)
+            .format("DD/MM HH:mm")}    :    ${_shifts[shift][amo][slot].booked}`
+        );
+      }
+    }
+  }
+  console.log(
+    `\n\n###############################################################################################################\n\n`
+  );
+};
 
+const copyGrid = (inputGrid) => {
+  let outputGrid = [];
+
+  for (let i = 0; i < inputGrid.length; i++) {
+    let firstDim = [];
+    for (let j = 0; j < inputGrid[i].length; j++) {
+      let secondDim = [];
+      for (let k = 0; k < inputGrid[i][j].length; k++) {
+        let n = Object.assign({}, inputGrid[i][j][k]);
+        secondDim.push(n);
+      }
+      firstDim.push(secondDim);
+    }
+    outputGrid.push(firstDim);
+  }
+  return outputGrid;
+};
 const getAvailables = (grid) => {
   let nbBooked = 0;
   let nbNotBooked = 0;
@@ -16,6 +58,13 @@ const getAvailables = (grid) => {
   }
   return [nbBooked, nbNotBooked];
 };
+const shuffle = (arr) =>
+  arr.reduceRight(
+    (r, _, __, s) => (
+      r.push(s.splice(0 | (Math.random() * s.length), 1)[0]), r
+    ),
+    []
+  );
 const reducer = (accumulator, currentValue) => accumulator + currentValue;
 const getAmoNb = (grid) => {
   let max = 0;
@@ -453,4 +502,13 @@ function mapList(
   return amosList;
 }
 
-module.exports = { LinkedList, ListNode, getAvailables, reducer, mapList };
+module.exports = {
+  LinkedList,
+  ListNode,
+  getAvailables,
+  reducer,
+  mapList,
+  printGrid,
+  copyGrid,
+  shuffle,
+};

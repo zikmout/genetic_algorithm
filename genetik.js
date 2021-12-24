@@ -75,6 +75,24 @@ const printGrid = (_shifts) => {
   );
 };
 
+const copyGrid = (inputGrid) => {
+  let outputGrid = [];
+
+  for (let i = 0; i < inputGrid.length; i++) {
+    let firstDim = [];
+    for (let j = 0; j < inputGrid[i].length; j++) {
+      let secondDim = [];
+      for (let k = 0; k < inputGrid[i][j].length; k++) {
+        let n = Object.assign({}, inputGrid[i][j][k]);
+        secondDim.push(n);
+      }
+      firstDim.push(secondDim);
+    }
+    outputGrid.push(firstDim);
+  }
+  return outputGrid;
+};
+
 const fit = (grid, shift, amo, slot, rdvLength) => {
   // printGrid(grid)
   let s = shift;
@@ -106,24 +124,6 @@ const fit = (grid, shift, amo, slot, rdvLength) => {
     }
   }
   return false;
-};
-
-const copyGrid = (inputGrid) => {
-  let outputGrid = [];
-
-  for (let i = 0; i < inputGrid.length; i++) {
-    let firstDim = [];
-    for (let j = 0; j < inputGrid[i].length; j++) {
-      let secondDim = [];
-      for (let k = 0; k < inputGrid[i][j].length; k++) {
-        let n = Object.assign({}, inputGrid[i][j][k]);
-        secondDim.push(n);
-      }
-      firstDim.push(secondDim);
-    }
-    outputGrid.push(firstDim);
-  }
-  return outputGrid;
 };
 
 const getAvailables = (grid) => {
