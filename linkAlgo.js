@@ -1014,6 +1014,17 @@ let endShift = "18:30";
 let startLunch = "12:30";
 let endLunch = "13:30";
 
+// let [nbBooked, nbNotBooked] = getAvailables(grid);
+// if (people.length > 0) {
+//   var totalPeople = people.reduce(reducer);
+// } else {
+//   var totalPeople = 0;
+// }
+// let margin = nbNotBooked - totalPeople;
+// console.log(
+//   `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
+// );
+
 let planning = new Planning(
   grid,
   people,
@@ -1026,6 +1037,7 @@ let planning = new Planning(
   endLunch
 );
 
-planning.amosList[0].printList();
+console.log(planning.getTotalPeople());
+console.log(planning.getPeople());
 
 console.log(`\n\nlinkAlgo() ${Math.round(new Date() - start)} ms`);

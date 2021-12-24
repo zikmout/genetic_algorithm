@@ -40,5 +40,16 @@ class Planning {
     this.startLunch = startLunch;
     this.endLunch = endLunch;
   }
+
+  getTotalPeople() {
+    if (this.people.length === 0) {
+      return undefined;
+    }
+    return this.people.reduce(reducer);
+  }
+
+  getPeople() {
+    return this.people;
+  }
 }
 module.exports = { Planning };
