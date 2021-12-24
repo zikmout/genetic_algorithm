@@ -99,10 +99,11 @@ class LinkedList {
     }
   }
 
-  getAvailables() {
+  getMargin() {
     let counter = 0;
     let currentNode = this.head;
     while (!!currentNode) {
+      //   console.log(`ezf`);
       if (currentNode.data.booked === false) {
         counter = counter + 1;
       }
@@ -182,6 +183,20 @@ class LinkedList {
       }
       this.size++;
     }
+  }
+
+  getNodeFromStart(planningStart, start) {
+    let currentNode = this.head;
+    while (!!currentNode) {
+      //   console.log(`currentNode.data.start : ${currentNode.data.start}`);
+      if (planningStart + currentNode.data.start === start) {
+        // console.log("top");
+        return currentNode;
+      } else {
+        currentNode = currentNode.next;
+      }
+    }
+    return undefined;
   }
 
   indexOf(data) {
@@ -365,7 +380,7 @@ function mapList(
     endShiftMinutes = endShiftMinutes[1];
   }
 
-  let amoLists = [];
+  let amosList = [];
 
   console.log(
     `mapList() : ${nbOfAmos} amos, planningStart: ${planningStart}, planningEnd: ${planningEnd}, nbSlots = ${
@@ -417,12 +432,25 @@ function mapList(
       });
     }
 
-    amoLists.push(newLinkedList);
+    amosList.push(newLinkedList);
   }
 
-  // Remplissage des liste chainees
+  // Remplissage des contraintes de chaque AMO
+  for (let shift = 0; shift < grid.length; shift++) {
+    for (let amo = 0; amo < grid[shift].length; amo++) {
+      for (let slot = 0; slot < grid[shift][amo].length; slot++) {
+        let node = amosList[amo].getNodeFromStart(
+          planningStart,
+          grid[shift][amo][slot].start
+        );
+        // console.log(`node : ${JSON.stringify(node)}`);
+        node.data.booked = `@unavailable`;
+      }
+    }
+  }
+  //   console.log("fin");
 
-  return amoLists;
+  return amosList;
 }
 
 module.exports = { LinkedList, ListNode, getAvailables, reducer, mapList };

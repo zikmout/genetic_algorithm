@@ -1036,10 +1036,10 @@ let list = mapList(
   endShift
 );
 // console.log(JSON.stringify(list));
-// list[0].printList();
+
 console.log();
 for (let amoNb = 0; amoNb < list.length; amoNb++) {
-  console.log(`margin amo ${amoNb}: ${list[amoNb].getAvailables()}`);
+  console.log(`margin amo ${amoNb}: ${list[amoNb].getMargin()}`);
 }
-
+// list[0].printList();
 console.log(`\n\nftGenetic() ${Math.round(new Date() - start)} ms`);
