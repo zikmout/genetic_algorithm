@@ -6,6 +6,7 @@ const {
   printGrid,
   copyGrid,
   shuffle,
+  getAmoNb,
 } = require("./linkAlgoUtils");
 
 class Planning {
@@ -39,6 +40,7 @@ class Planning {
     this.endShift = endShift;
     this.startLunch = startLunch;
     this.endLunch = endLunch;
+    this.amoNb = getAmoNb(this.grid);
   }
 
   getTotalPeople() {
@@ -50,6 +52,18 @@ class Planning {
 
   getPeople() {
     return this.people;
+  }
+
+  getAmoNb() {
+    return this.amoNb;
+  }
+
+  getAmosList() {
+    return this.amosList;
+  }
+
+  getMargin() {
+    return this.getAmosList().map((amo) => amo.getMargin());
   }
 }
 module.exports = { Planning };

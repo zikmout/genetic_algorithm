@@ -6,6 +6,8 @@ const {
 } = require("./linkAlgoUtils");
 
 const { Planning } = require("./Planning.js");
+const { Backtracking } = require("./Backtracking.js");
+
 let start = new Date();
 
 let grid = [
@@ -1037,7 +1039,12 @@ let planning = new Planning(
   endLunch
 );
 
-console.log(planning.getTotalPeople());
-console.log(planning.getPeople());
+let backtracking = new Backtracking(planning);
+backtracking.giveAnswers(4);
+// console.log(planning.getTotalPeople());
+// console.log(planning.getPeople());
+// console.log(planning.getMargin());
+// console.log(planning.getAmoNb());
+// console.log(planning.getMargin());
 
 console.log(`\n\nlinkAlgo() ${Math.round(new Date() - start)} ms`);

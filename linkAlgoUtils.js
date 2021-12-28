@@ -266,6 +266,10 @@ class LinkedList {
     this.head = null;
     this.size = 0;
   }
+
+  getAmosList() {
+    return this.amosList;
+  }
 }
 
 function mapSort(linkedList) {
@@ -453,7 +457,7 @@ function mapList(
   for (let i = 0; i < nbOfAmos; i++) {
     let newLinkedList = new LinkedList(i, planningStart, planningEnd, pas);
     let linkedListSize = (planningEnd - planningStart) / (pas * 1000);
-    console.log(`AMO ${i} linkedListSize : ${linkedListSize}`);
+    // console.log(`AMO ${i} linkedListSize : ${linkedListSize}`);
 
     // Remplissage de la data avec start, end et booked
     for (let j = 0; j < linkedListSize; j++) {
@@ -511,4 +515,5 @@ module.exports = {
   printGrid,
   copyGrid,
   shuffle,
+  getAmoNb,
 };
