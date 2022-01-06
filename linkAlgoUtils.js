@@ -136,7 +136,12 @@ class LinkedList {
     let planningStart = this.planningStart;
     let planningEnd = this.planningEnd;
     let currentNode = this.head;
+    let counter = 0;
     while (!!currentNode) {
+      counter++;
+      if (counter === 100) {
+        return;
+      }
       console.log(
         `${moment
           .utc(planningStart + currentNode.data.start)
@@ -265,10 +270,6 @@ class LinkedList {
   clear() {
     this.head = null;
     this.size = 0;
-  }
-
-  getAmosList() {
-    return this.amosList;
   }
 }
 

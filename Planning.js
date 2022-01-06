@@ -32,7 +32,7 @@ class Planning {
       endShift
     );
     this.grid = copyGrid(grid);
-    this.people = [...people];
+    this.people = people;
     this.pas = pas;
     this.startDay = startDay;
     this.endDay = endDay;
@@ -40,7 +40,7 @@ class Planning {
     this.endShift = endShift;
     this.startLunch = startLunch;
     this.endLunch = endLunch;
-    this.amoNb = getAmoNb(this.grid);
+    this.amoNb = getAmoNb(grid);
   }
 
   getTotalPeople() {
