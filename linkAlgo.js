@@ -1040,7 +1040,8 @@ let planning = new Planning(
 );
 
 let backtracking = new Backtracking(planning);
-backtracking.giveAnswers(4);
+// backtracking.giveAnswers(4);
+backtracking.solveRdv();
 // console.log(planning.getTotalPeople());
 // console.log(planning.getPeople());
 // console.log(planning.getMargin());

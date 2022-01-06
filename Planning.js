@@ -90,13 +90,28 @@ class Planning {
     return S;
   }
 
+  cleanAmoLists() {
+    for (let amo = 0; amo < this.getAmosList().length; amo++) {
+      let ptr = this.getAmosList()[amo].head;
+      while (ptr !== null) {
+        if (
+          ptr.data.booked !== undefined &&
+          ptr.data.booked !== false &&
+          !ptr.data.booked.includes("@")
+        ) {
+          ptr.data.booked = false;
+        }
+        ptr = ptr.next;
+      }
+    }
+  }
+
   getSolutions() {
     let S = {};
-    // this.getSlotsForLength(this.getAmosList()[4].head);
     for (let amo = 0; amo < this.getAmosList().length; amo++) {
-      console.log(`margin after : ${this.getAmosList()[amo].getMargin()}`);
+      // console.log(`margin after : ${this.getAmosList()[amo].getMargin()}`);
       let amoSolutions = this.getSlotsForLength(amo);
-      console.log(`\n\namoSolutions --> ${JSON.stringify(amoSolutions)}`);
+      // console.log(`\n\namoSolutions --> ${JSON.stringify(amoSolutions)}`);
       for (const [key, value] of Object.entries(amoSolutions)) {
         if (S[key] === undefined) S[key] = [];
         for (let v = 0; v < value.length; v++) {
@@ -105,16 +120,15 @@ class Planning {
           }
         }
       }
-      // return;
     }
 
-    Object.keys(S).forEach((obj) => {
-      S[obj] = S[obj].sort(function (a, b) {
-        return a.start - b.start;
-      });
-    });
+    // Object.keys(S).forEach((obj) => {
+    //   S[obj] = S[obj].sort(function (a, b) {
+    //     return a.start - b.start;
+    //   });
+    // });
 
-    console.log(S);
+    return S;
   }
 
   getTotalPeople() {
