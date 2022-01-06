@@ -54,6 +54,7 @@ class Backtracking {
     // );
     let counter = 0;
     if (people.length === 0) {
+      this.planning.getSolutions();
       throw new Error(`OK. NO MORE PEOPLE TO PLACE`);
       return;
     }
@@ -62,7 +63,7 @@ class Backtracking {
         console.log(`FINFIN`);
         return;
       } else {
-        console.log(`amo++`);
+        // console.log(`amo++`);
         amoNb++;
         pt = this.planning.amosList[amoNb].head;
       }
@@ -101,7 +102,7 @@ class Backtracking {
     // });
     for (let i = 0; i < setPeople.length; i++) {
       if (setPeople[i] <= counter) {
-        console.log(`-> ${setPeople[i]} <= ${counter} (${people.length})`);
+        // console.log(`-> ${setPeople[i]} <= ${counter} (${people.length})`);
         let newPtr = this.fillRdv(setPeople[i], originPt);
         let pc = [];
         for (var j = 0; j < people.length; j++) pc[j] = people[j];
@@ -110,6 +111,8 @@ class Backtracking {
         return this.goRec(amoNb, newPtr.next, pc, S, pas);
       }
     }
+    return this.goRec(amoNb, originPt.next, people, S, pas);
+    // console.log(`dev`);
   }
 
   fit(pt, rdvLength, pas) {

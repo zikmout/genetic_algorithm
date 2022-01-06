@@ -43,6 +43,26 @@ class Planning {
     this.amoNb = getAmoNb(grid);
   }
 
+  getSlotsForLength(ptr) {
+    let amoSolutions = {};
+    while (ptr !== null) {
+      console.log(`ptr.data : ${JSON.stringify(ptr.data)}`);
+      ptr = ptr.next;
+    }
+    return amoSolutions;
+  }
+
+  getSolutions() {
+    let S = {};
+    // this.getSlotsForLength(this.getAmosList()[4].head);
+    for (let amo = 0; amo < this.getAmosList().length; amo++) {
+      console.log(`margin after : ${this.getAmosList()[amo].getMargin()}`);
+      let amoSolutions = this.getSlotsForLength(this.getAmosList()[amo].head);
+      console.log(`amoSolutions --> ${JSON.stringify(amoSolutions)}`);
+      return;
+    }
+  }
+
   getTotalPeople() {
     if (this.people.length === 0) {
       return undefined;

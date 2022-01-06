@@ -139,7 +139,7 @@ class LinkedList {
     let counter = 0;
     while (!!currentNode) {
       counter++;
-      if (counter === 100) {
+      if (counter === 500) {
         return;
       }
       console.log(
