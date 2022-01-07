@@ -9,7 +9,10 @@ const {
   copyGrid,
   shuffle,
   getAmoNb,
+  LinkedList,
 } = require("./linkAlgoUtils");
+
+const { Planning } = require("./Planning");
 
 class Backtracking {
   constructor(planning) {
@@ -27,6 +30,7 @@ class Backtracking {
       .toString(36)
       .replace(/[^a-z]+/g, "")
       .substr(0, 5);
+    // console.log(`+ ${rdvLength}`);
     while (42) {
       if (pt === null) {
         throw new Error(`Should never be null when filling Rdv`);
@@ -46,23 +50,71 @@ class Backtracking {
     return pt;
   }
 
+  getAmosListCopy() {
+    let amosList = [];
+    for (let amo = 0; amo < this.planning.getAmosList().length; amo++) {
+      let planningStart = this.planning.getAmosList()[amo].planningStart;
+      let planningEnd = this.planning.getAmosList()[amo].planningEnd;
+
+      let newLinkedList = new LinkedList(
+        amo,
+        planningStart,
+        planningEnd,
+        this.planning.pas
+      );
+      let linkedListSize =
+        (planningEnd - planningStart) / (this.planning.pas * 1000);
+
+      let ptr = this.planning.getAmosList()[amo].head;
+
+      while (ptr !== null) {
+        newLinkedList.add({
+          start: ptr.data.start,
+          end: ptr.data.end,
+          booked: ptr.data.booked,
+        });
+        ptr = ptr.next;
+      }
+
+      amosList.push(newLinkedList);
+
+      // console.log(
+      //   `this.planning.getAmosList() : ${this.planning.getAmosList()[amo]}`
+      // );
+    }
+    return amosList;
+  }
+
   goRec(amoNb, pt, people, pas) {
+    // console.log(`people enter : ${JSON.stringify(people.reduce(reducer))}`);
+    // console.log(people.reduce(reducer));
     // console.log(
     //   `people.length : ${
     //     people.length
     //   }, amoNb : ${amoNb}, pt : ${JSON.stringify(pt.data)}`
     // );
+    // console.log(`${JSON.stringify(people)}`);
+    let amoSolutions = [];
     let counter = 0;
     if (people.length === 0) {
+      console.log(`people : ${JSON.stringify(people)}`);
       this.S = this.planning.getSolutions();
       // console.log(this.planning.getSolutions());
+
+      for (let amo = 0; amo < this.planning.getAmosList().length; amo++) {
+        // console.log(`margin after : ${this.getAmosList()[amo].getMargin()}`);
+        amoSolutions = amoSolutions.concat(
+          this.planning.getSlotsForLength2(amo)
+        );
+      }
+      console.log(amoSolutions.reduce(reducer));
       // throw new Error(`OK. NO MORE PEOPLE TO PLACE`);
       return;
     }
-    if (pt === null || pt.next === null) {
+    if (pt === undefined || pt === null || pt.next === null) {
       if (amoNb === this.planning.amosList.length - 1) {
-        throw new Error(`PAS DE SOLUTIION`);
-        console.log(`FINFIN`);
+        // throw new Error(`PAS DE SOLUTIION`);
+        console.log(`FINFIN : ${people.length}`);
         return;
       } else {
         // console.log(`amo++`);
@@ -73,17 +125,66 @@ class Backtracking {
 
     // Si le prochain slot est booked, recursion
     if (pt.data.booked !== false) {
-      return this.goRec(amoNb, pt.next, people, pas);
+      let np = new Planning(
+        this.planning.grid,
+        this.planning.people,
+        this.planning.pas,
+        this.planning.startDay,
+        this.planning.endDay,
+        this.planning.startShift,
+        this.planning.endShift,
+        this.planning.startLunch,
+        this.planning.endLunch,
+        false
+      );
+      np.amosList = this.getAmosListCopy();
+      let nb = new Backtracking(np);
+      let idx = this.planning.getAmosList()[amoNb].indexOf(pt.next.data);
+      let node = this.planning.getAmosList()[amoNb].getNodeAt(idx);
+      return nb.goRec(amoNb, node.next, people, pas);
     }
     if (pt.next.data.booked !== false) {
-      return this.goRec(amoNb, pt.next.next, people, pas);
+      let np = new Planning(
+        this.planning.grid,
+        this.planning.people,
+        this.planning.pas,
+        this.planning.startDay,
+        this.planning.endDay,
+        this.planning.startShift,
+        this.planning.endShift,
+        this.planning.startLunch,
+        this.planning.endLunch,
+        false
+      );
+      np.amosList = this.getAmosListCopy();
+      let nb = new Backtracking(np);
+      let idx = this.planning.getAmosList()[amoNb].indexOf(pt.next.data);
+      let node = this.planning.getAmosList()[amoNb].getNodeAt(idx);
+      return nb.goRec(amoNb, node, people, pas);
     }
 
     // Verifie si il peut poser sinon recursion
     let originPt = pt;
     while (pt.next !== null) {
       if (pt.next.data.start !== pt.data.end) {
-        return this.goRec(amoNb, pt.next, people, pas);
+        let np = new Planning(
+          this.planning.grid,
+          this.planning.people,
+          this.planning.pas,
+          this.planning.startDay,
+          this.planning.endDay,
+          this.planning.startShift,
+          this.planning.endShift,
+          this.planning.startLunch,
+          this.planning.endLunch,
+          false
+        );
+        np.amosList = this.getAmosListCopy();
+        let nb = new Backtracking(np);
+        let idx = this.planning.getAmosList()[amoNb].indexOf(pt.next.data);
+        let node = this.planning.getAmosList()[amoNb].getNodeAt(idx);
+
+        nb.goRec(amoNb, node.next, people, pas);
       } else {
         if (pt.data.booked === false) {
           counter += 1;
@@ -104,17 +205,70 @@ class Backtracking {
     // });
     for (let i = 0; i < setPeople.length; i++) {
       if (setPeople[i] <= counter) {
-        // console.log(`-> ${setPeople[i]} <= ${counter} (${people.length})`);
+        console.log(
+          `->AMO ${amoNb} : ${setPeople[i]} <= ${counter} (${people.length})`
+        );
         let newPtr = this.fillRdv(setPeople[i], originPt);
+        // this.planning.amosList[amoNb].printList();
         let pc = [];
         for (var j = 0; j < people.length; j++) pc[j] = people[j];
-        let pplIdx = pc.indexOf(setPeople[j]);
+        let pplIdx = pc.indexOf(setPeople[i]);
         pc.splice(pplIdx, 1);
-        return this.goRec(amoNb, newPtr.next, pc, pas);
+        // console.log(
+        //   `people before : ${people.reduce(
+        //     reducer
+        //   )}, people after : ${pc.reduce(reducer)}`
+        // );
+        // this.S = this.planning.getSolutions();
+        // console.log(this.planning.getSolutions());
+
+        // for (let amo = 0; amo < this.planning.getAmosList().length; amo++) {
+        // console.log(`margin after : ${this.getAmosList()[amo].getMargin()}`);
+        // amoSolutions = amoSolutions.concat(
+        // this.planning.getSlotsForLength2(amo)
+        // );
+        // }
+        // console.log(`sol --> ${amoSolutions.reduce(reducer)}`);
+        let np = new Planning(
+          this.planning.grid,
+          this.planning.people,
+          this.planning.pas,
+          this.planning.startDay,
+          this.planning.endDay,
+          this.planning.startShift,
+          this.planning.endShift,
+          this.planning.startLunch,
+          this.planning.endLunch,
+          false
+        );
+        np.amosList = this.getAmosListCopy();
+        let nb = new Backtracking(np);
+        let idx = this.planning.getAmosList()[amoNb].indexOf(newPtr.next.data);
+        let node = this.planning.getAmosList()[amoNb].getNodeAt(idx);
+        // console.log(`node -> ${node.data}`);
+        nb.goRec(amoNb, node, pc, pas);
       }
     }
-    return this.goRec(amoNb, originPt.next, people, pas);
-    // console.log(`dev`);
+    // return this.goRec(amoNb, originPt.next, people, pas);
+    console.log(`dev`);
+    let np = new Planning(
+      this.planning.grid,
+      this.planning.people,
+      this.planning.pas,
+      this.planning.startDay,
+      this.planning.endDay,
+      this.planning.startShift,
+      this.planning.endShift,
+      this.planning.startLunch,
+      this.planning.endLunch,
+      false
+    );
+    np.amosList = this.getAmosListCopy();
+    let nb = new Backtracking(np);
+    let idx = this.planning.getAmosList()[amoNb].indexOf(originPt.next.data);
+    let node = this.planning.getAmosList()[amoNb].getNodeAt(idx);
+    // console.log(`node -> ${node.data}`);
+    return nb.goRec(amoNb, node, people, pas);
   }
 
   fit(pt, rdvLength, pas) {
@@ -196,7 +350,8 @@ class Backtracking {
               // console.log(`ptr.data: ${JSON.stringify(ptr.data)}`);
               // printGrid(this.planning.grid);
               // throw new Error();
-              // return this.goRec(amo, newPtr.next, pc, S, this.planning.pas);
+              // this.goRec(amo, newPtr.next, pc, S, this.planning.pas);
+
               this.goRec(
                 0,
                 this.planning.amosList[0].head,
@@ -204,6 +359,9 @@ class Backtracking {
                 this.planning.pas
               );
               // console.log(`this.S = ${JSON.stringify(Object.keys(this.S))}`);
+
+              throw new Error("FIN goRec()");
+              // return;
 
               for (const [key, value] of Object.entries(this.S)) {
                 if (S[key] === undefined) S[key] = [];

@@ -257,7 +257,7 @@ class LinkedList {
     let currentNode = this.head;
     let index = 0;
     while (!!currentNode) {
-      if (currentNode.data === data) {
+      if (JSON.stringify(currentNode.data) === JSON.stringify(data)) {
         return index;
       } else {
         currentNode = currentNode.next;
