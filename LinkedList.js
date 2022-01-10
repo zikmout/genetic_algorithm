@@ -159,7 +159,7 @@ class LinkedList {
       //   console.log(JSON.stringify(data.start));
       if (currentNode.data.start === data.start) {
         // console.log(`OKOK ${data.next.start}`);
-        console.log();
+        // console.log();
         return index;
       } else {
         currentNode = currentNode.next;

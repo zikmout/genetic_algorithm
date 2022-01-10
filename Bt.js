@@ -339,17 +339,51 @@ class Bt {
     return pt;
   }
 
+  getPlacedPeople(alc) {
+    let people = [];
+
+    for (let amo = 0; amo < alc.length; amo++) {
+      let ptr = alc[amo].head;
+      let start = undefined;
+      let counter = 1;
+      while (ptr !== null) {
+        if (
+          ptr.data.booked !== undefined &&
+          ptr.data.booked !== false &&
+          !ptr.data.booked.includes("@")
+        ) {
+          if (ptr.data.booked === ptr.next.data.booked) {
+            if (start === undefined) {
+              start = ptr.data.start;
+            }
+            counter++;
+          } else {
+            people.push(counter);
+            counter = 1;
+            start = ptr.data.start;
+          }
+        }
+        ptr = ptr.next;
+      }
+    }
+
+    return people;
+  }
+
   ftRec(amoNb, alc, pt, people) {
     console.log(JSON.stringify(people));
     if (people.length === 0) {
       console.log(`/!\\ END BACKTRACKING, PEOPLE = 0 /!\\`);
+      // let placedPeople = this.getPlacedPeople(alc);
+      // console.log(`placedPeople : ${JSON.stringify(placedPeople)}`);
       return;
     }
 
     if (pt === null || pt.next === null) {
       if (amoNb === alc.length - 1) {
-        // throw new Error(`PAS DE SOLUTIION`);
-        console.log(`FINFIN : ${people.length}`);
+        throw new Error(
+          `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
+        );
         return;
       } else {
         amoNb++;
@@ -379,16 +413,11 @@ class Bt {
       pto = pto.next;
     }
 
-    // console.log(`available ---> ${available}`);
     let peopleSet = Array.from(new Set([...people]));
-    // console.log(`peopleSet --> ${JSON.stringify(peopleSet)}`);
     for (let i = 0; i < peopleSet.length; i++) {
       if (peopleSet[i] > available) {
         continue;
       } else {
-        // console.log(
-        //   `->AMO ${amoNb} : ${peopleSet[i]} <= ${available} (${people.length})`
-        // );
         let pc = [...people];
         let pplIdx = pc.indexOf(peopleSet[i]);
         pc.splice(pplIdx, 1);
@@ -401,6 +430,7 @@ class Bt {
         return this.ftRec(amoNb, alc2, newPtr, pc);
       }
     }
+    return this.ftRec(amoNb, alc, pt.next, people);
   }
 
   giveAnswers(rdvLength, people) {
