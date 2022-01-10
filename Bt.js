@@ -371,20 +371,20 @@ class Bt {
   }
 
   ftRec(amoNb, alc, pt, people) {
-    console.log(JSON.stringify(people));
+    // console.log(JSON.stringify(people));
     if (people.length === 0) {
       console.log(`/!\\ END BACKTRACKING, PEOPLE = 0 /!\\`);
       // let placedPeople = this.getPlacedPeople(alc);
       // console.log(`placedPeople : ${JSON.stringify(placedPeople)}`);
-      return;
+      return alc;
     }
 
     if (pt === null || pt.next === null) {
       if (amoNb === alc.length - 1) {
-        throw new Error(
-          `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
-        );
-        return;
+        // throw new Error(
+        //   `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
+        // );
+        return null;
       } else {
         amoNb++;
         pt = alc[amoNb].head;
@@ -433,8 +433,75 @@ class Bt {
     return this.ftRec(amoNb, alc, pt.next, people);
   }
 
+  getAvailabilities(alc) {
+    let S = {};
+
+    for (let amo = 0; amo < alc.length; amo++) {
+      let ptr = alc[amo].head;
+      let planningStart = alc[amo].planningStart;
+      let start = undefined;
+      let counter = 1;
+
+      while (ptr !== null) {
+        if (
+          ptr.data.booked !== undefined &&
+          ptr.data.booked !== false &&
+          !ptr.data.booked.includes("@")
+        ) {
+          if (ptr.data.booked === ptr.next.data.booked) {
+            if (start === undefined) {
+              start = ptr.data.start;
+            }
+            counter++;
+          } else {
+            let sol = {
+              start: planningStart + start,
+              amoNb: 0,
+              length: counter,
+              booked: false,
+            };
+            if (S[counter]) {
+              S[counter].push(sol);
+            } else {
+              S[counter] = [sol];
+            }
+            counter = 1;
+            start = ptr.data.start;
+          }
+        }
+        ptr = ptr.next;
+      }
+    }
+    return S;
+  }
+
+  isAlreadyFoundSolution(S1, rdvLength, start) {
+    if (S1[rdvLength] === undefined) {
+      return false;
+    }
+    if (S1[rdvLength].find((_) => _.start === start) !== undefined) {
+      console.log(`\n--------------------> FOUND SOLUTIOIN !!!!!\n`);
+      return true;
+    }
+
+    return false;
+  }
+
+  mergeSolutions(S1, S2) {
+    for (const [key, value] of Object.entries(S2)) {
+      if (S1[key] === undefined) S1[key] = [];
+      for (let v = 0; v < value.length; v++) {
+        if (S1[key].find((_) => _.start === value[v].start) === undefined) {
+          S1[key].push(value[v]);
+        }
+      }
+    }
+
+    return S1;
+  }
+
   giveAnswers(rdvLength, people) {
-    let S = [];
+    let S = {};
     console.log(`giveAnswers() : ${rdvLength}`);
 
     let counter = 0;
@@ -446,17 +513,30 @@ class Bt {
           console.log(
             `> Test place ${rdvLength} pour amo ${amo} a ${ptr.data.start}`
           );
-          if (this.fit(ptr, rdvLength, this.pas)) {
+          if (
+            this.fit(ptr, rdvLength, this.pas) &&
+            !this.isAlreadyFoundSolution(
+              S,
+              rdvLength,
+              this.amosList[amo].planningStart + ptr.data.start
+            )
+          ) {
             console.log(`Rdv ${rdvLength} DOES FIT`);
             let alc = this.getAmosListCopy(this.amosList);
             let nc = alc[amo].getNodeAt(nodeCounter);
             this.fillRdv(rdvLength, nc);
-            let S = [];
-            this.ftRec(0, alc, alc[0].head, [...people]);
+            let S1 = [];
+            S1 = this.ftRec(0, alc, alc[0].head, [...people]);
+            if (S1 === null) {
+              console.log(`PAS DE SOLUTION`);
+            } else {
+              S = this.mergeSolutions(S, this.getAvailabilities(S1));
+              // console.log(JSON.stringify(S));
+            }
           } else {
             console.log(`Rdv ${rdvLength} DOES NOT FIT`);
           }
-          throw new Error(`STOP`);
+          // throw new Error(`STOP`);
           counter++;
         }
 
