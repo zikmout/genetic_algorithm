@@ -1010,6 +1010,11 @@ const people = [
 //   2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
 // ];
 
+// const people = [
+//   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
+//   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
+// ];
+
 let pas = 1800;
 
 let startDay = "06:00";
@@ -1030,11 +1035,14 @@ let initialAmosList = mapList(
   endShift
 );
 
-let gen = ftGenetic(initialAmosList, people);
+// let gen = ftGenetic(initialAmosList, people);
 // console.log(`initialAmosList ---> ${JSON.stringify(initialAmosList)}`);
 
-// let bt = new Bt(initialAmosList, pas);
+let bt = new Bt(initialAmosList, pas);
 
 // bt.printAmos();
-// let S = bt.giveAnswers(4, people);
-// console.log(JSON.stringify(S));
+let S = bt.giveAnswers(2, people);
+S = bt.giveAnswers(3, people);
+S = bt.giveAnswers(4, people);
+S = bt.giveAnswers(5, people);
+console.log(JSON.stringify(S));

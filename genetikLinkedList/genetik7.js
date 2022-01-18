@@ -371,7 +371,7 @@ const ftGenetic = (amosList, people) => {
           .getSchedules()
           .push(this.crossoverSchedule(schedule1, schedule2));
       }
-      printSchedulesFitness(crossoverPop.getSchedules());
+      // printSchedulesFitness(crossoverPop.getSchedules());
       return crossoverPop; // returns only the one with the highest fitness
     }
 
@@ -479,27 +479,24 @@ const ftGenetic = (amosList, people) => {
     console.log(population.getSchedules()[0].fitness);
   }
 
-  // console.log("placed");
+  // let amoMargin = 0;
+  // let totalMargin = 0;
+  // for (
+  //   let i = 0;
+  //   i < population.getSchedules()[0].data.getAmosList().length;
+  //   i++
+  // ) {
+  //   amoMargin = population.getSchedules()[0].data.getAmosList()[i].getMargin();
+  //   totalMargin += amoMargin;
+  //   console.log(
+  //     `Margin : ${amoMargin}, placedPeople.length : ${JSON.stringify(
+  //       population.getSchedules()[0].getPlacedPeople()
+  //     )}`
+  //   );
+  // }
 
-  let amoMargin = 0;
-  let totalMargin = 0;
-  // population.getSchedules()[0].data.printAmos();
-  for (
-    let i = 0;
-    i < population.getSchedules()[0].data.getAmosList().length;
-    i++
-  ) {
-    amoMargin = population.getSchedules()[0].data.getAmosList()[i].getMargin();
-    totalMargin += amoMargin;
-    console.log(
-      `Margin : ${amoMargin}, placedPeople.length : ${JSON.stringify(
-        population.getSchedules()[0].getPlacedPeople()
-      )}`
-    );
-  }
-
-  console.log(`end, total margin : ${totalMargin}`);
-  // return population.getSchedules()[0].data.getGrid();
+  // console.log(`end, total margin : ${totalMargin}`);
+  return population.getSchedules()[0].data.getAmosList();
 };
 
 module.exports = { ftGenetic, getAvailables, reducer };

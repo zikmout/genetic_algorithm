@@ -1,5 +1,5 @@
 const moment = require("moment");
-
+const { ftGenetic } = require("./genetik7");
 const { LinkedList, ListNode } = require("./LinkedList");
 
 const getAmoNb = (grid) => {
@@ -300,6 +300,9 @@ class Bt {
   fit(pt, rdvLength, pas) {
     let opt = pt;
     let counter = 0;
+    if (pt.data.booked !== false) {
+      return false;
+    }
     while (opt !== null && counter < rdvLength) {
       if (
         (opt.data.end - opt.data.start) / (pas * 1000) === 1 &&
@@ -480,7 +483,10 @@ class Bt {
       return false;
     }
     if (S1[rdvLength].find((_) => _.start === start) !== undefined) {
-      console.log(`\n--------------------> FOUND SOLUTIOIN !!!!!\n`);
+      if (start === 468000000) {
+        console.log(`\n--------------------> FOUND SOLUTIOIN !!!!!\n`);
+      }
+
       return true;
     }
 
@@ -500,6 +506,14 @@ class Bt {
     return S1;
   }
 
+  printSolutionsNumber(S) {
+    console.log(`\n\n`);
+    let keys = Object.keys(S);
+    for (let i = 0; i < keys.length; i++) {
+      console.log(`Length : ${keys[i]} : ${S[keys[i]].length}`);
+    }
+  }
+
   giveAnswers(rdvLength, people) {
     let S = {};
     console.log(`giveAnswers() : ${rdvLength}`);
@@ -510,9 +524,6 @@ class Bt {
       let nodeCounter = 0;
       while (ptr !== null) {
         if (ptr.data.booked === false) {
-          console.log(
-            `> Test place ${rdvLength} pour amo ${amo} a ${ptr.data.start}`
-          );
           if (
             this.fit(ptr, rdvLength, this.pas) &&
             !this.isAlreadyFoundSolution(
@@ -521,20 +532,40 @@ class Bt {
               this.amosList[amo].planningStart + ptr.data.start
             )
           ) {
-            console.log(`Rdv ${rdvLength} DOES FIT`);
+            if (ptr.data.start === 468000000) {
+              console.log(
+                `> Test place ${rdvLength} pour amo ${amo} a ${ptr.data.start}`
+              );
+            }
+            // console.log(`Rdv ${rdvLength} DOES FIT`);
             let alc = this.getAmosListCopy(this.amosList);
             let nc = alc[amo].getNodeAt(nodeCounter);
             this.fillRdv(rdvLength, nc);
             let S1 = [];
-            S1 = this.ftRec(0, alc, alc[0].head, [...people]);
+
+            S1 = ftGenetic(this.amosList, people);
+
+            // S1 = this.ftRec(0, alc, alc[0].head, [...people]);
             if (S1 === null) {
               console.log(`PAS DE SOLUTION`);
             } else {
-              S = this.mergeSolutions(S, this.getAvailabilities(S1));
+              let sol = {
+                start: this.amosList[amo].planningStart + ptr.data.start,
+                amoNb: amo,
+                length: rdvLength,
+                booked: false,
+              };
+              let trans = this.getAvailabilities(S1);
+              trans[rdvLength].push(sol);
+              // console.log(this.getAvailabilities(S1));
+              S = this.mergeSolutions(S, trans);
+
+              this.printSolutionsNumber(S);
+
               // console.log(JSON.stringify(S));
             }
           } else {
-            console.log(`Rdv ${rdvLength} DOES NOT FIT`);
+            // console.log(`Rdv ${rdvLength} DOES NOT FIT`);
           }
           // throw new Error(`STOP`);
           counter++;
