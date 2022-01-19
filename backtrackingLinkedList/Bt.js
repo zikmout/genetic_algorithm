@@ -97,7 +97,7 @@ const isBooked = (
     return "@shift";
   }
 
-  return false;
+  return "@unavailable";
 };
 const copyGrid = (inputGrid) => {
   let outputGrid = [];
@@ -251,7 +251,11 @@ function mapList(
           grid[shift][amo][slot].start
         );
         // console.log(`node : ${JSON.stringify(node)}`);
-        node.data.booked = `@unavailable`;
+        if (grid[shift][amo][slot].booked !== false) {
+          node.data.booked = grid[shift][amo][slot].booked;
+        } else {
+          node.data.booked = false;
+        }
       }
     }
   }
@@ -370,10 +374,90 @@ class Bt {
     return people;
   }
 
+  dummyFill(pt, amoNb, people, alc) {
+    // console.log(JSON.stringify(this.data.people));
+    if (people.length === 0) {
+      console.log(`/!\\ END PLACING, PEOPLE = 0 /!\\`);
+      // console.log(this.data.people);
+      // this.data.printAmos();
+
+      // let orderedPeople = [
+      //   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5,
+      //   4, 5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8,
+      //   4, 5, 4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2,
+      //   8, 4, 8, 5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2,
+      //   4, 5, 5, 4, 5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4,
+      //   4, 5, 4, 5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4,
+      //   5, 3, 5, 3, 5, 2, 2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 5,
+      // ].sort(function (a, b) {
+      //   return b - a;
+      // });
+      // let placedPeople = getPlacedPeople(alc).sort(function (a, b) {
+      //   return b - a;
+      // });
+
+      // console.log(`people 1 : ${JSON.stringify(orderedPeople)}`);
+      // console.log(`people 2 : ${JSON.stringify(placedPeople)}`);
+      return alc;
+    }
+
+    if (pt === null || pt.next === null) {
+      if (amoNb === alc.length - 1) {
+        // throw new Error(
+        //   `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
+        // );
+        // console.log(`END`);
+        console.log("PAS DE SOLUTION");
+        return null;
+      } else {
+        amoNb++;
+        pt = alc[amoNb].head;
+      }
+    }
+
+    let available = 0;
+    let pto = pt;
+    while (pto.next !== null) {
+      if (pto.next.data.start !== pto.data.end) {
+      } else {
+        if (pto.data.booked === false) {
+          available += 1;
+        } else {
+          break;
+        }
+      }
+      pto = pto.next;
+    }
+
+    // console.log(`available -> ${available}`);
+    if (available === 0) {
+      return this.dummyFill(pto.next, amoNb, people, alc);
+    }
+
+    let peopleSet = Array.from(new Set(people));
+    for (let i = 0; i < peopleSet.length; i++) {
+      if (peopleSet[i] > available) {
+        continue;
+      } else {
+        let pc = [...people];
+        let pplIdx = pc.indexOf(peopleSet[i]);
+        pc.splice(pplIdx, 1);
+
+        let newPtr = this.fillRdv(peopleSet[i], pt);
+        // console.log(`pc : ${pc.length}`);
+        // this.data.people = pc;
+
+        return this.dummyFill(newPtr, amoNb, pc, alc);
+      }
+    }
+    return this.dummyFill(pto.next, amoNb, people, alc);
+  }
+
   ftRec(amoNb, alc, pt, people) {
     // console.log(JSON.stringify(people));
     if (people.length === 0) {
       console.log(`/!\\ END BACKTRACKING, PEOPLE = 0 /!\\`);
+      // this.printSolutionsNumber(this.getAvailabilities(alc));
       // let placedPeople = this.getPlacedPeople(alc);
       // console.log(`placedPeople : ${JSON.stringify(placedPeople)}`);
       return alc;
@@ -500,6 +584,14 @@ class Bt {
     return S1;
   }
 
+  printSolutionsNumber(S) {
+    console.log(`\n\n`);
+    let keys = Object.keys(S);
+    for (let i = 0; i < keys.length; i++) {
+      console.log(`Length : ${keys[i]} : ${S[keys[i]].length}`);
+    }
+  }
+
   giveAnswers(rdvLength, people) {
     let S = {};
     console.log(`giveAnswers() : ${rdvLength}`);
@@ -526,7 +618,9 @@ class Bt {
             let nc = alc[amo].getNodeAt(nodeCounter);
             this.fillRdv(rdvLength, nc);
             let S1 = [];
-            S1 = this.ftRec(0, alc, alc[0].head, [...people]);
+            // S1 = this.ftRec(0, alc, alc[0].head, [...people]);
+            S1 = this.dummyFill(alc[0].head, 0, [...people], alc);
+
             if (S1 === null) {
               console.log(`PAS DE SOLUTION`);
             } else {

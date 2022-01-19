@@ -1,4 +1,5 @@
-const { ftGenetic, getAvailables, reducer } = require("./genetik7");
+const moment = require("moment");
+const { LinkedList, ListNode } = require("./LinkedList");
 
 let grid = [
   [
@@ -992,7 +993,9 @@ let grid = [
 //   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
 //   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
 //   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
+//   5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
+//   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
+//   2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
 // ];
 
 const people = [
@@ -1002,30 +1005,455 @@ const people = [
   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
   5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
-  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
+  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 5,
 ];
-
-// const people = [
-//   5, 3, 5, 3, 5, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4, 5,
-//   4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5, 4,
-//   5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8, 5,
-//   5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4, 5,
-//   4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2, 2,
-//   3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2, 2,
-//   4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
-//   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
-//   2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 2, 4, 4, 4, 2, 8, 5, 8,
-// ];
 
 // const people = [
 //   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
 //   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
-//   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
-//   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4,
-//   5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3,
-//   5, 2, 2,
 // ];
+
+const getPlacedPeople = (amosList) => {
+  let people = [];
+
+  for (let amo = 0; amo < amosList.length; amo++) {
+    let ptr = amosList[amo].head;
+    let start = undefined;
+    let counter = 1;
+    while (ptr !== null) {
+      if (
+        ptr.data.booked !== undefined &&
+        ptr.data.booked !== false &&
+        !ptr.data.booked.includes("@")
+      ) {
+        if (ptr.data.booked === ptr.next.data.booked) {
+          if (start === undefined) {
+            start = ptr.data.start;
+          }
+          counter++;
+        } else {
+          people.push(counter);
+          counter = 1;
+          start = ptr.data.start;
+        }
+      }
+      ptr = ptr.next;
+    }
+  }
+
+  return people;
+};
+const getAmosListCopy = (amosList) => {
+  let alc = [];
+  for (let amo = 0; amo < amosList.length; amo++) {
+    let planningStart = amosList[amo].planningStart;
+    let planningEnd = amosList[amo].planningEnd;
+    let newLinkedList = new LinkedList(
+      amo,
+      planningStart,
+      planningEnd,
+      this.pas
+    );
+    let ptr = amosList[amo].head;
+    while (ptr !== null) {
+      newLinkedList.add({
+        start: ptr.data.start,
+        end: ptr.data.end,
+        booked: ptr.data.booked,
+      });
+      ptr = ptr.next;
+    }
+    alc.push(newLinkedList);
+  }
+  return alc;
+};
+const getAmoNb = (grid) => {
+  let max = 0;
+  grid.map((shift) => {
+    if (shift.length >= max) {
+      max = shift.length;
+    }
+  });
+  return max;
+};
+const getPlanningStart = (grid) => {
+  if (!grid[0][0][0]) {
+    return undefined;
+  } else {
+    return grid[0][0][0].start;
+  }
+};
+const getPlanningEnd = (grid) => {
+  let tmax = 0;
+  if (!grid) {
+    return tmax;
+  } else {
+    for (let shift = 0; shift < grid.length; shift++) {
+      for (let amo = 0; amo < grid[shift].length; amo++) {
+        for (let slot = 0; slot < grid[shift][amo].length; slot++) {
+          if (grid[shift][amo][slot].end > tmax) {
+            tmax = grid[shift][amo][slot].end;
+          }
+        }
+      }
+    }
+    return tmax;
+  }
+};
+const reducer = (accumulator, currentValue) => accumulator + currentValue;
+const isBooked = (
+  start,
+  end,
+  startDayHours,
+  endDayHours,
+  startDayMinutes,
+  endDayMinutes,
+  startLunchHours,
+  startLunchMinutes,
+  endLunchHours,
+  endLunchMinutes,
+  startShiftHours,
+  startShiftMinutes,
+  endShiftHours,
+  endShiftMinutes
+) => {
+  // @Break
+  if (
+    moment.utc(start) <
+      moment(start)
+        .set("hour", startDayHours)
+        .set("minutes", startDayMinutes)
+        .utc() ||
+    moment.utc(start) >=
+      moment(start).set("hour", endDayHours).set("minutes", endDayMinutes).utc()
+  ) {
+    return "@break";
+  }
+
+  // @Lunch
+  if (
+    moment.utc(start) >
+      moment(start)
+        .set("hour", startLunchHours)
+        .set("minutes", startLunchMinutes)
+        .utc() &&
+    moment.utc(start) <=
+      moment(start)
+        .set("hour", endLunchHours)
+        .set("minutes", endLunchMinutes)
+        .utc()
+  ) {
+    return "@lunch";
+  }
+
+  // @Shift
+  if (
+    moment.utc(start) <
+      moment(start)
+        .set("hour", startShiftHours)
+        .set("minutes", startShiftMinutes)
+        .utc() ||
+    moment.utc(start) >=
+      moment(start)
+        .set("hour", endShiftHours)
+        .set("minutes", endShiftMinutes)
+        .utc()
+  ) {
+    return "@shift";
+  }
+
+  return "@unavailable";
+};
+function mapList(
+  grid,
+  pas,
+  startDay,
+  endDay,
+  startLunch,
+  endLunch,
+  startShift,
+  endShift
+) {
+  let nbOfAmos = getAmoNb(grid);
+  let planningStart = getPlanningStart(grid);
+  let planningEnd = getPlanningEnd(grid);
+
+  let startDayHours = startDay.split(":")[0];
+  if (startDayHours.startsWith(`0`)) {
+    startDayHours = startDayHours[1];
+  }
+
+  let startDayMinutes = startDay.split(":")[1];
+  if (startDayMinutes.startsWith(`0`)) {
+    startDayMinutes = startDayMinutes[1];
+  }
+
+  let endDayHours = endDay.split(":")[0];
+  if (endDayHours.startsWith(`0`)) {
+    endDayHours = endDayHours[1];
+  }
+
+  let endDayMinutes = endDay.split(":")[1];
+  if (endDayMinutes.startsWith(`0`)) {
+    endDayMinutes = endDayMinutes[1];
+  }
+
+  let startLunchHours = startLunch.split(":")[0];
+  if (startLunchHours.startsWith(`0`)) {
+    startLunchHours = startLunchHours[1];
+  }
+  let startLunchMinutes = startDay.split(":")[1];
+  if (startLunchMinutes.startsWith(`0`)) {
+    startLunchMinutes = startLunchMinutes[1];
+  }
+
+  let endLunchHours = endLunch.split(":")[0];
+  if (endLunchHours.startsWith(`0`)) {
+    endLunchHours = endLunchHours[1];
+  }
+  let endLunchMinutes = startDay.split(":")[1];
+  if (endLunchMinutes.startsWith(`0`)) {
+    endLunchMinutes = endLunchMinutes[1];
+  }
+
+  let startShiftHours = startShift.split(":")[0];
+  if (startShiftHours.startsWith(`0`)) {
+    startShiftHours = startShiftHours[1];
+  }
+  let startShiftMinutes = startShift.split(":")[1];
+  if (startShiftMinutes.startsWith(`0`)) {
+    startShiftMinutes = startShiftMinutes[1];
+  }
+
+  let endShiftHours = endShift.split(":")[0];
+  if (endShiftHours.startsWith(`0`)) {
+    endShiftHours = endshiftHours[1];
+  }
+  let endShiftMinutes = startShift.split(":")[1];
+  if (endShiftMinutes.startsWith(`0`)) {
+    endShiftMinutes = endShiftMinutes[1];
+  }
+
+  let amosList = [];
+
+  console.log(
+    `\nmapList() : ${nbOfAmos} amos, planningStart: ${planningStart}, planningEnd: ${planningEnd}, nbSlots = ${
+      (planningEnd - planningStart) / (pas * 1000)
+    }`
+  );
+
+  // Start of planning must be end of shifts
+  planningStart = moment(planningStart)
+    .set("hour", startDayHours)
+    .set("minutes", startDayMinutes)
+    .utc();
+
+  // End of planning must be end of shifts
+  planningEnd = moment(planningEnd)
+    .set("hour", endDayHours)
+    .set("minutes", endDayMinutes)
+    .utc();
+
+  // Creation des listes chainees, une pour chaque AMO
+  for (let i = 0; i < nbOfAmos; i++) {
+    let newLinkedList = new LinkedList(i, planningStart, planningEnd, pas);
+    let linkedListSize = (planningEnd - planningStart) / (pas * 1000);
+
+    // Remplissage de la data avec start, end et booked
+
+    for (let j = 0; j < linkedListSize; j++) {
+      let booked = isBooked(
+        planningStart + j * pas * 1000,
+        planningStart + (j + 1) * pas * 1000,
+        startDayHours,
+        endDayHours,
+        startDayMinutes,
+        endDayMinutes,
+        startLunchHours,
+        startLunchMinutes,
+        endLunchHours,
+        endLunchMinutes,
+        startShiftHours,
+        startShiftMinutes,
+        endShiftHours,
+        endShiftMinutes
+      );
+      newLinkedList.add({
+        start: j * pas * 1000,
+        end: (j + 1) * pas * 1000,
+        booked: booked,
+      });
+    }
+
+    amosList.push(newLinkedList);
+  }
+
+  // Remplissage des contraintes de chaque AMO
+  for (let shift = 0; shift < grid.length; shift++) {
+    for (let amo = 0; amo < grid[shift].length; amo++) {
+      for (let slot = 0; slot < grid[shift][amo].length; slot++) {
+        let node = amosList[amo].getNodeFromStart(
+          planningStart,
+          grid[shift][amo][slot].start
+        );
+        // console.log(`node : ${JSON.stringify(node)}`);
+        if (grid[shift][amo][slot].booked !== false) {
+          node.data.booked = grid[shift][amo][slot].booked;
+        } else {
+          node.data.booked = false;
+        }
+      }
+    }
+  }
+  return amosList;
+}
+const getAvailables = (grid) => {
+  let nbBooked = 0;
+  let nbNotBooked = 0;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      for (let k = 0; k < grid[i][j].length; k++) {
+        if (grid[i][j][k].booked !== false) {
+          nbBooked += 1;
+        } else {
+          nbNotBooked += 1;
+        }
+      }
+    }
+  }
+  return [nbBooked, nbNotBooked];
+};
+
+const fillRdv = (rdvLength, pt) => {
+  let ran = Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, "")
+    .substr(0, 5);
+  while (42) {
+    if (pt === null) {
+      throw new Error(`Should never be null when filling Rdv`);
+    }
+    if (pt.data.booked !== false) {
+      throw new Error(`Is writing but should not`);
+    }
+    pt.data.booked = `${ran}`;
+    rdvLength -= 1;
+    if (rdvLength === 0) {
+      break;
+    }
+    pt = pt.next;
+  }
+  return pt;
+};
+const dummyFill = (pt, amoNb, people, alc) => {
+  // console.log(JSON.stringify(this.data.people));
+  if (people.length === 0) {
+    console.log(`/!\\ END PLACING, PEOPLE = 0 /!\\`);
+    // console.log(this.data.people);
+    // this.data.printAmos();
+
+    let orderedPeople = [
+      5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5,
+      4, 5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8,
+      4, 5, 4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2,
+      8, 4, 8, 5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2,
+      4, 5, 5, 4, 5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4,
+      4, 5, 4, 5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4,
+      5, 3, 5, 3, 5, 2, 2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 5,
+    ].sort(function (a, b) {
+      return b - a;
+    });
+    let placedPeople = getPlacedPeople(alc).sort(function (a, b) {
+      return b - a;
+    });
+
+    console.log(`people 1 : ${JSON.stringify(orderedPeople)}`);
+    console.log(`people 2 : ${JSON.stringify(placedPeople)}`);
+    return;
+  }
+
+  if (pt === null || pt.next === null) {
+    if (amoNb === alc.length - 1) {
+      // throw new Error(
+      //   `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
+      // );
+      // console.log(`END`);
+      console.log("PAS DE SOLUTION");
+      return false;
+    } else {
+      amoNb++;
+      pt = alc[amoNb].head;
+    }
+  }
+
+  let available = 0;
+  let pto = pt;
+  while (pto.next !== null) {
+    if (pto.next.data.start !== pto.data.end) {
+    } else {
+      if (pto.data.booked === false) {
+        available += 1;
+      } else {
+        break;
+      }
+    }
+    pto = pto.next;
+  }
+
+  // console.log(`available -> ${available}`);
+  if (available === 0) {
+    return dummyFill(pto.next, amoNb, people, alc);
+  }
+
+  let peopleSet = Array.from(new Set(people));
+  for (let i = 0; i < peopleSet.length; i++) {
+    if (peopleSet[i] > available) {
+      continue;
+    } else {
+      let pc = [...people];
+      let pplIdx = pc.indexOf(peopleSet[i]);
+      pc.splice(pplIdx, 1);
+
+      let newPtr = fillRdv(peopleSet[i], pt);
+      // console.log(`pc : ${pc.length}`);
+      // this.data.people = pc;
+
+      return dummyFill(newPtr, amoNb, pc, alc);
+    }
+  }
+  return dummyFill(pto.next, amoNb, people, alc);
+};
+
+let pas = 1800;
+
+let startDay = "06:00";
+let endDay = "20:00";
+let startShift = "08:30";
+let endShift = "18:30";
+let startLunch = "12:30";
+let endLunch = "13:30";
+
+let initialAmosList = mapList(
+  grid,
+  pas,
+  startDay,
+  endDay,
+  startLunch,
+  endLunch,
+  startShift,
+  endShift
+);
+
+// let gen = ftGenetic(initialAmosList, people);
+// console.log(`initialAmosList ---> ${JSON.stringify(initialAmosList)}`);
+let totalMargin = 0;
+for (let i = 0; i < initialAmosList.length; i++) {
+  let margin = initialAmosList[i].getMargin();
+  console.log(`margin -> ${margin}`);
+  totalMargin += margin;
+}
+
+console.log(`Margin TOTAL = ${totalMargin}\n\n`);
 
 let [nbBooked, nbNotBooked] = getAvailables(grid);
 if (people.length > 0) {
@@ -1038,9 +1466,11 @@ console.log(
   `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
 );
 
-throw new Error(`FIN DU TEST`);
+let ret = dummyFill(initialAmosList[0].head, 0, people, initialAmosList);
 
-let start = new Date();
-// setTimeout(() => {console.log("this is the third message")}, 1000);
-ftGenetic(grid, people);
-console.log(`ftGenetic() ${Math.round((new Date() - start) / 1000)}s`);
+// let bt = new Bt(initialAmosList, pas);
+// let S = bt.giveAnswers(2, people);
+// S = bt.giveAnswers(3, people);
+// S = bt.giveAnswers(4, people);
+// S = bt.giveAnswers(5, people);
+// console.log(JSON.stringify(S));

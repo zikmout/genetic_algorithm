@@ -1042,7 +1042,7 @@ let bt = new Bt(initialAmosList, pas);
 
 // bt.printAmos();
 let S = bt.giveAnswers(2, people);
-S = bt.giveAnswers(3, people);
-S = bt.giveAnswers(4, people);
-S = bt.giveAnswers(5, people);
+// S = bt.giveAnswers(3, people);
+// S = bt.giveAnswers(4, people);
+// S = bt.giveAnswers(5, people);
 console.log(JSON.stringify(S));

@@ -1,4 +1,5 @@
-const { ftGenetic, getAvailables, reducer } = require("./genetik7");
+const { Bt, mapList } = require("./Bt");
+const { ftGenetic, reducer, getAvailables } = require("./genetik7");
 
 let grid = [
   [
@@ -992,7 +993,9 @@ let grid = [
 //   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
 //   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
 //   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5,
+//   5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
+//   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
+//   2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
 // ];
 
 const people = [
@@ -1002,30 +1005,75 @@ const people = [
   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
   5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
-  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5,
+  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 8, 3, 5, 5, 5,
 ];
-
-// const people = [
-//   5, 3, 5, 3, 5, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4, 5,
-//   4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5, 4,
-//   5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8, 5,
-//   5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4, 5,
-//   4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2, 2,
-//   3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2, 2,
-//   4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
-//   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
-//   2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 2, 4, 4, 4, 2, 8, 5, 8,
-// ];
 
 // const people = [
 //   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
 //   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
-//   4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2, 8, 4, 8,
-//   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
-//   5, 4, 2, 3, 4, 5, 4, 4, 8, 5, 4, 8, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4,
-//   5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3,
-//   5, 2, 2,
 // ];
+
+const getPlacedPeople = (amosList) => {
+  let people = [];
+
+  for (let amo = 0; amo < amosList.length; amo++) {
+    let ptr = amosList[amo].head;
+    let start = undefined;
+    let counter = 1;
+    while (ptr !== null) {
+      if (
+        ptr.data.booked !== undefined &&
+        ptr.data.booked !== false &&
+        !ptr.data.booked.includes("@")
+      ) {
+        if (ptr.data.booked === ptr.next.data.booked) {
+          if (start === undefined) {
+            start = ptr.data.start;
+          }
+          counter++;
+        } else {
+          people.push(counter);
+          counter = 1;
+          start = ptr.data.start;
+        }
+      }
+      ptr = ptr.next;
+    }
+  }
+
+  return people;
+};
+
+let pas = 1800;
+
+let startDay = "06:00";
+let endDay = "20:00";
+let startShift = "08:30";
+let endShift = "18:30";
+let startLunch = "12:30";
+let endLunch = "13:30";
+
+let initialAmosList = mapList(
+  grid,
+  pas,
+  startDay,
+  endDay,
+  startLunch,
+  endLunch,
+  startShift,
+  endShift
+);
+
+// let gen = ftGenetic(initialAmosList, people);
+// console.log(`initialAmosList ---> ${JSON.stringify(initialAmosList)}`);
+let totalMargin = 0;
+for (let i = 0; i < initialAmosList.length; i++) {
+  let margin = initialAmosList[i].getMargin();
+  console.log(`margin -> ${margin}`);
+  totalMargin += margin;
+}
+
+console.log(`Margin TOTAL = ${totalMargin}\n\n`);
 
 let [nbBooked, nbNotBooked] = getAvailables(grid);
 if (people.length > 0) {
@@ -1038,9 +1086,13 @@ console.log(
   `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
 );
 
-throw new Error(`FIN DU TEST`);
+// throw new Error("FIN DU TEST");
 
-let start = new Date();
-// setTimeout(() => {console.log("this is the third message")}, 1000);
-ftGenetic(grid, people);
-console.log(`ftGenetic() ${Math.round((new Date() - start) / 1000)}s`);
+let bt = new Bt(initialAmosList, pas);
+
+// bt.printAmos();
+let S = bt.giveAnswers(2, people);
+// S = bt.giveAnswers(3, people);
+// S = bt.giveAnswers(4, people);
+// S = bt.giveAnswers(5, people);
+console.log(JSON.stringify(S));

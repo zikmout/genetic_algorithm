@@ -1,7 +1,9 @@
 const moment = require("moment");
 const { ftGenetic } = require("./genetik7");
 const { LinkedList, ListNode } = require("./LinkedList");
-
+const getRandomInt = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 const getAmoNb = (grid) => {
   let max = 0;
   grid.map((shift) => {
@@ -97,7 +99,7 @@ const isBooked = (
     return "@shift";
   }
 
-  return false;
+  return "@unavailable";
 };
 const copyGrid = (inputGrid) => {
   let outputGrid = [];
@@ -116,7 +118,31 @@ const copyGrid = (inputGrid) => {
   }
   return outputGrid;
 };
-
+const printGrid = (_shifts) => {
+  console.log(
+    `\n\n################################################### G.R.I.D ###################################################`
+  );
+  for (let shift = 0; shift < _shifts.length; shift++) {
+    console.log(
+      `\n----------\nShift ${shift} (Amo(s): ${_shifts[shift].length})\n`
+    );
+    for (let amo = 0; amo < _shifts[shift].length; amo++) {
+      console.log(`\nAMO no ${amo}\n`);
+      for (let slot = 0; slot < _shifts[shift][amo].length; slot++) {
+        console.log(
+          `[${shift}][${amo}][${slot}]  ***********  ${moment
+            .utc(_shifts[shift][amo][slot].start)
+            .format("DD/MM HH:mm")}  -  ${moment
+            .utc(_shifts[shift][amo][slot].end)
+            .format("DD/MM HH:mm")}    :    ${_shifts[shift][amo][slot].booked}`
+        );
+      }
+    }
+  }
+  console.log(
+    `\n\n###############################################################################################################\n\n`
+  );
+};
 function mapList(
   grid,
   pas,
@@ -211,9 +237,9 @@ function mapList(
   for (let i = 0; i < nbOfAmos; i++) {
     let newLinkedList = new LinkedList(i, planningStart, planningEnd, pas);
     let linkedListSize = (planningEnd - planningStart) / (pas * 1000);
-    // console.log(`AMO ${i} linkedListSize : ${linkedListSize}`);
 
     // Remplissage de la data avec start, end et booked
+
     for (let j = 0; j < linkedListSize; j++) {
       let booked = isBooked(
         planningStart + j * pas * 1000,
@@ -231,7 +257,6 @@ function mapList(
         endShiftHours,
         endShiftMinutes
       );
-
       newLinkedList.add({
         start: j * pas * 1000,
         end: (j + 1) * pas * 1000,
@@ -251,12 +276,14 @@ function mapList(
           grid[shift][amo][slot].start
         );
         // console.log(`node : ${JSON.stringify(node)}`);
-        node.data.booked = `@unavailable`;
+        if (grid[shift][amo][slot].booked !== false) {
+          node.data.booked = grid[shift][amo][slot].booked;
+        } else {
+          node.data.booked = false;
+        }
       }
     }
   }
-  //   console.log("fin");
-
   return amosList;
 }
 
@@ -300,9 +327,9 @@ class Bt {
   fit(pt, rdvLength, pas) {
     let opt = pt;
     let counter = 0;
-    if (pt.data.booked !== false) {
-      return false;
-    }
+    // if (pt.data.booked !== false || pt.next.data.booked !== false) {
+    //   return false;
+    // }
     while (opt !== null && counter < rdvLength) {
       if (
         (opt.data.end - opt.data.start) / (pas * 1000) === 1 &&
@@ -516,14 +543,16 @@ class Bt {
 
   giveAnswers(rdvLength, people) {
     let S = {};
-    console.log(`giveAnswers() : ${rdvLength}`);
+    console.log(`giveAnswers() eeee: ${rdvLength}`);
 
+    // let setPeople = Array.from(new Set(people));
     let counter = 0;
     for (let amo = 0; amo < this.amosList.length; amo++) {
       let ptr = this.amosList[amo].head;
       let nodeCounter = 0;
       while (ptr !== null) {
         if (ptr.data.booked === false) {
+          // let rdvLength = setPeople[getRandomInt(0, 4)];
           if (
             this.fit(ptr, rdvLength, this.pas) &&
             !this.isAlreadyFoundSolution(
@@ -544,6 +573,8 @@ class Bt {
             let S1 = [];
 
             S1 = ftGenetic(this.amosList, people);
+            this.printSolutionsNumber(this.getAvailabilities(S1));
+            throw new Error();
 
             // S1 = this.ftRec(0, alc, alc[0].head, [...people]);
             if (S1 === null) {
