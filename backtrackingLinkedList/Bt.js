@@ -377,7 +377,7 @@ class Bt {
   dummyFill(pt, amoNb, people, alc) {
     // console.log(JSON.stringify(this.data.people));
     if (people.length === 0) {
-      console.log(`/!\\ END PLACING, PEOPLE = 0 /!\\`);
+      // console.log(`/!\\ END PLACING, PEOPLE = 0 /!\\`);
       // console.log(this.data.people);
       // this.data.printAmos();
 
@@ -407,7 +407,7 @@ class Bt {
         //   `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
         // );
         // console.log(`END`);
-        console.log("PAS DE SOLUTION");
+        // console.log("PAS DE SOLUTION");
         return null;
       } else {
         amoNb++;
@@ -564,7 +564,7 @@ class Bt {
       return false;
     }
     if (S1[rdvLength].find((_) => _.start === start) !== undefined) {
-      console.log(`\n--------------------> FOUND SOLUTIOIN !!!!!\n`);
+      // console.log(`\n--------------------> FOUND SOLUTIOIN !!!!!\n`);
       return true;
     }
 
@@ -592,8 +592,16 @@ class Bt {
     }
   }
 
-  giveAnswers(rdvLength, people) {
-    let S = {};
+  printSolutionsNumber(S) {
+    console.log(`\n\n`);
+    let keys = Object.keys(S);
+    for (let i = 0; i < keys.length; i++) {
+      console.log(`Length : ${keys[i]} : ${S[keys[i]].length}`);
+    }
+  }
+
+  giveAnswers(S, rdvLength, people) {
+    // let S = {};
     console.log(`giveAnswers() : ${rdvLength}`);
 
     let counter = 0;
@@ -602,9 +610,9 @@ class Bt {
       let nodeCounter = 0;
       while (ptr !== null) {
         if (ptr.data.booked === false) {
-          console.log(
-            `> Test place ${rdvLength} pour amo ${amo} a ${ptr.data.start}`
-          );
+          // console.log(
+          //   `> Test place ${rdvLength} pour amo ${amo} a ${ptr.data.start}`
+          // );
           if (
             this.fit(ptr, rdvLength, this.pas) &&
             !this.isAlreadyFoundSolution(
@@ -613,7 +621,7 @@ class Bt {
               this.amosList[amo].planningStart + ptr.data.start
             )
           ) {
-            console.log(`Rdv ${rdvLength} DOES FIT`);
+            // console.log(`Rdv ${rdvLength} DOES FIT`);
             let alc = this.getAmosListCopy(this.amosList);
             let nc = alc[amo].getNodeAt(nodeCounter);
             this.fillRdv(rdvLength, nc);
@@ -622,13 +630,13 @@ class Bt {
             S1 = this.dummyFill(alc[0].head, 0, [...people], alc);
 
             if (S1 === null) {
-              console.log(`PAS DE SOLUTION`);
+              // console.log(`PAS DE SOLUTION`);
             } else {
               S = this.mergeSolutions(S, this.getAvailabilities(S1));
-              // console.log(JSON.stringify(S));
+              this.printSolutionsNumber(S);
             }
           } else {
-            console.log(`Rdv ${rdvLength} DOES NOT FIT`);
+            // console.log(`Rdv ${rdvLength} DOES NOT FIT`);
           }
           // throw new Error(`STOP`);
           counter++;
@@ -638,10 +646,33 @@ class Bt {
         nodeCounter += 1;
       }
     }
-    console.log(`COUNTER : ${counter}`);
-
+    // console.log(`COUNTER : ${counter}`);
+    // console.log(JSON.stringify(S));
     return S;
   }
+
+  solveRdv = (people) => {
+    let S = {};
+
+    // Get all solutions for all rdv lengths
+    let S1 = undefined;
+    let setAllLengths = Array.from(new Set(people)).sort(function (a, b) {
+      return b - a;
+    });
+    for (let x = 0; x < setAllLengths.length; x++) {
+      console.log(`giveAnswer() : setAllLengths[${x}] = ${setAllLengths[x]}`);
+      S1 = [];
+      S1 = this.giveAnswers(S, setAllLengths[x], [...people]);
+      // console.log(S1);
+      if (S1 !== null) {
+        S = this.mergeSolutions(S, S1);
+        // console.log(JSON.stringify(S));
+      }
+      // S1[setAllLengths[x]] = S;
+    }
+
+    return S;
+  };
 }
 
 module.exports = { Bt, mapList };

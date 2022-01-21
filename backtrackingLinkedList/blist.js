@@ -987,6 +987,14 @@ let grid = [
   ],
 ];
 
+const printSolutionsNumber = (S) => {
+  console.log(`\n\n`);
+  let keys = Object.keys(S);
+  for (let i = 0; i < keys.length; i++) {
+    console.log(`Length : ${keys[i]} : ${S[keys[i]].length}`);
+  }
+};
+let start = new Date();
 const people = [
   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
@@ -1030,5 +1038,12 @@ let initialAmosList = mapList(
 let bt = new Bt(initialAmosList, pas);
 
 // bt.printAmos();
-let S = bt.giveAnswers(4, people);
-console.log(JSON.stringify(S));
+let setAllLengths = Array.from(new Set([...people]));
+console.log(`setAllLengths -> ${setAllLengths}`);
+
+// let S = bt.giveAnswers(4, people);
+let S = bt.solveRdv(people);
+// console.log(JSON.stringify(S));
+printSolutionsNumber(S);
+
+console.log(`ftGenetic() ${Math.round((new Date() - start) / 1000)}s`);
