@@ -1005,14 +1005,30 @@ const people = [
   5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2, 4, 5, 5, 4,
   5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4, 4, 5, 4, 5, 2,
   2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 5, 3, 5, 3, 5, 2,
-  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 5,
+  2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 5, 2,
 ];
 
 // const people = [
 //   5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5, 4,
 //   5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8, 4, 5,
 // ];
+const copyGrid = (inputGrid) => {
+  let outputGrid = [];
 
+  for (let i = 0; i < inputGrid.length; i++) {
+    let firstDim = [];
+    for (let j = 0; j < inputGrid[i].length; j++) {
+      let secondDim = [];
+      for (let k = 0; k < inputGrid[i][j].length; k++) {
+        let n = Object.assign({}, inputGrid[i][j][k]);
+        secondDim.push(n);
+      }
+      firstDim.push(secondDim);
+    }
+    outputGrid.push(firstDim);
+  }
+  return outputGrid;
+};
 const getPlacedPeople = (amosList) => {
   let people = [];
 
@@ -1042,30 +1058,6 @@ const getPlacedPeople = (amosList) => {
   }
 
   return people;
-};
-const getAmosListCopy = (amosList) => {
-  let alc = [];
-  for (let amo = 0; amo < amosList.length; amo++) {
-    let planningStart = amosList[amo].planningStart;
-    let planningEnd = amosList[amo].planningEnd;
-    let newLinkedList = new LinkedList(
-      amo,
-      planningStart,
-      planningEnd,
-      this.pas
-    );
-    let ptr = amosList[amo].head;
-    while (ptr !== null) {
-      newLinkedList.add({
-        start: ptr.data.start,
-        end: ptr.data.end,
-        booked: ptr.data.booked,
-      });
-      ptr = ptr.next;
-    }
-    alc.push(newLinkedList);
-  }
-  return alc;
 };
 const getAmoNb = (grid) => {
   let max = 0;
@@ -1323,62 +1315,13 @@ const getAvailables = (grid) => {
   }
   return [nbBooked, nbNotBooked];
 };
-
-const fillRdv = (rdvLength, pt) => {
-  let ran = Math.random()
-    .toString(36)
-    .replace(/[^a-z]+/g, "")
-    .substr(0, 5);
-  while (42) {
-    if (pt === null) {
-      throw new Error(`Should never be null when filling Rdv`);
-    }
-    if (pt.data.booked !== false) {
-      throw new Error(`Is writing but should not`);
-    }
-    pt.data.booked = `${ran}`;
-    rdvLength -= 1;
-    if (rdvLength === 0) {
-      break;
-    }
-    pt = pt.next;
-  }
-  return pt;
-};
 const dummyFill = (pt, amoNb, people, alc) => {
-  // console.log(JSON.stringify(this.data.people));
   if (people.length === 0) {
-    console.log(`/!\\ END PLACING, PEOPLE = 0 /!\\`);
-    // console.log(this.data.people);
-    // this.data.printAmos();
-
-    let orderedPeople = [
-      5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4, 2, 2, 4, 4, 2, 3, 5, 3, 4, 2, 5, 4, 8, 5,
-      4, 5, 4, 5, 4, 4, 5, 3, 2, 5, 8, 4, 5, 4, 3, 5, 2, 5, 5, 4, 5, 5, 5, 4, 8,
-      4, 5, 4, 5, 4, 5, 2, 3, 2, 5, 5, 5, 3, 5, 4, 4, 5, 4, 5, 4, 2, 8, 4, 5, 2,
-      8, 4, 8, 5, 5, 5, 3, 5, 2, 2, 5, 8, 5, 3, 5, 5, 8, 8, 4, 5, 5, 3, 2, 2, 2,
-      4, 5, 5, 4, 5, 4, 2, 3, 4, 5, 4, 4, 5, 4, 5, 2, 4, 4, 4, 2, 8, 2, 5, 3, 4,
-      4, 5, 4, 5, 2, 2, 3, 3, 3, 5, 5, 4, 4, 4, 5, 3, 5, 3, 5, 2, 2, 3, 5, 5, 4,
-      5, 3, 5, 3, 5, 2, 2, 4, 3, 5, 2, 5, 5, 4, 3, 5, 2, 5, 4, 4, 8, 5,
-    ].sort(function (a, b) {
-      return b - a;
-    });
-    let placedPeople = getPlacedPeople(alc).sort(function (a, b) {
-      return b - a;
-    });
-
-    console.log(`people 1 : ${JSON.stringify(orderedPeople)}`);
-    console.log(`people 2 : ${JSON.stringify(placedPeople)}`);
     return alc;
   }
 
   if (pt === null || pt.next === null) {
     if (amoNb === alc.length - 1) {
-      // throw new Error(
-      //   `PAS DE SOLUTIION (impossible de placer ${people.length} personne(s))`
-      // );
-      // console.log(`END`);
-      console.log("PAS DE SOLUTION");
       return false;
     } else {
       amoNb++;
@@ -1423,6 +1366,26 @@ const dummyFill = (pt, amoNb, people, alc) => {
   }
   return dummyFill(pto.next, amoNb, people, alc);
 };
+const printLst = (alc) => {
+  for (let amo = 0; amo < alc.length; amo++) {
+    alc[amo].printList();
+  }
+};
+const printAvailabilities = (S) => {
+  let typos = Object.keys(S);
+  console.log(`typos -> ${JSON.stringify(typos)}`);
+  for (let typo = 0; typo < typos.length; typo++) {
+    for (let slot = 0; slot < S[typos[typo]].length; slot++) {
+      console.log(
+        `[${typos[typo]}] ${moment
+          .utc(S[typos[typo]][slot].start)
+          .format("DD/MM HH:mm")}  -  ${moment
+          .utc(S[typos[typo]][slot].end)
+          .format("DD/MM HH:mm")}    :    ${S[typos[typo]][slot].booked}`
+      );
+    }
+  }
+};
 
 let pas = 1800;
 
@@ -1449,11 +1412,11 @@ let initialAmosList = mapList(
 let totalMargin = 0;
 for (let i = 0; i < initialAmosList.length; i++) {
   let margin = initialAmosList[i].getMargin();
-  console.log(`margin -> ${margin}`);
+  // console.log(`margin -> ${margin}`);
   totalMargin += margin;
 }
 
-console.log(`Margin TOTAL = ${totalMargin}\n\n`);
+// console.log(`Margin TOTAL = ${totalMargin}\n\n`);
 
 let [nbBooked, nbNotBooked] = getAvailables(grid);
 if (people.length > 0) {
@@ -1462,12 +1425,230 @@ if (people.length > 0) {
   var totalPeople = 0;
 }
 let margin = nbNotBooked - totalPeople;
-console.log(
-  `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
-);
+// console.log(
+//   `margin : ${margin}, nbNotBooked : ${nbNotBooked}, nbBooked : ${nbBooked}, total : ${totalPeople}`
+// );
+const fit = (pt, rdvLength, pas) => {
+  let opt = pt;
+  let counter = 0;
+  while (opt !== null && counter < rdvLength) {
+    // console.log(`TOP`);
+    if (
+      (opt.data.end - opt.data.start) / (pas * 1000) === 1 &&
+      opt.data.booked === false
+    ) {
+      counter++;
+    } else {
+      break;
+    }
+    opt = opt.next;
+  }
+  if (counter === rdvLength) {
+    return true;
+  }
+  return false;
+};
+const isAlreadyFoundSolution = (S1, rdvLength, start) => {
+  if (S1[rdvLength] === undefined) {
+    return false;
+  }
+  if (S1[rdvLength].find((_) => _.start === start) !== undefined) {
+    // console.log(`\n--------------------> FOUND SOLUTIOIN !!!!!\n`);
+    return true;
+  }
 
-let ret = dummyFill(initialAmosList[0].head, 0, people, initialAmosList);
+  return false;
+};
+const mergeSolutions = (S1, S2) => {
+  for (const [key, value] of Object.entries(S2)) {
+    if (S1[key] === undefined) S1[key] = [];
+    for (let v = 0; v < value.length; v++) {
+      if (S1[key].find((_) => _.start === value[v].start) === undefined) {
+        S1[key].push(value[v]);
+      }
+    }
+  }
 
+  return S1;
+};
+const getAmosListCopy = (amosList) => {
+  let alc = [];
+  for (let amo = 0; amo < amosList.length; amo++) {
+    let planningStart = amosList[amo].planningStart;
+    let planningEnd = amosList[amo].planningEnd;
+    let newLinkedList = new LinkedList(
+      amo,
+      planningStart,
+      planningEnd,
+      this.pas
+    );
+    let ptr = amosList[amo].head;
+    while (ptr !== null) {
+      newLinkedList.add({
+        start: ptr.data.start,
+        end: ptr.data.end,
+        booked: ptr.data.booked,
+      });
+      ptr = ptr.next;
+    }
+    alc.push(newLinkedList);
+  }
+  return alc;
+};
+const fillRdv = (rdvLength, pt) => {
+  let ran = Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, "")
+    .substr(0, 5);
+  while (42) {
+    if (pt === null) {
+      throw new Error(`Should never be null when filling Rdv`);
+    }
+    if (pt.data.booked !== false) {
+      throw new Error(`Is writing but should not`);
+    }
+    pt.data.booked = `${ran}`;
+    rdvLength -= 1;
+    if (rdvLength === 0) {
+      break;
+    }
+    pt = pt.next;
+  }
+  return pt;
+};
+const getAvailabilities = (alc) => {
+  let S = {};
+
+  for (let amo = 0; amo < alc.length; amo++) {
+    let ptr = alc[amo].head;
+    let planningStart = alc[amo].planningStart;
+    let start = undefined;
+    let counter = 1;
+
+    while (ptr !== null) {
+      if (
+        ptr.data.booked !== undefined &&
+        ptr.data.booked !== false &&
+        !ptr.data.booked.includes("@")
+      ) {
+        if (ptr.data.booked === ptr.next.data.booked) {
+          if (start === undefined) {
+            start = ptr.data.start;
+          }
+          counter++;
+        } else {
+          let sol = {
+            start: planningStart + start,
+            amoNb: 0,
+            length: counter,
+            booked: false,
+          };
+          if (S[counter]) {
+            S[counter].push(sol);
+          } else {
+            S[counter] = [sol];
+          }
+          counter = 1;
+          start = ptr.data.start;
+        }
+      }
+      ptr = ptr.next;
+    }
+  }
+  return S;
+};
+const printSolutionsNumber = (S) => {
+  // console.log(`\n\n`);
+  let keys = Object.keys(S);
+  for (let i = 0; i < keys.length; i++) {
+    console.log(`Length : ${keys[i]} : ${S[keys[i]].length}`);
+  }
+};
+const giveAnswers = (S, rdvLength, people) => {
+  // let S = {};
+  console.log(`giveAnswers() : ${rdvLength}`);
+
+  let counter = 0;
+  for (let amo = 0; amo < initialAmosList.length; amo++) {
+    let ptr = initialAmosList[amo].head;
+    let nodeCounter = 0;
+    while (ptr !== null) {
+      if (ptr.data.booked === false) {
+        // console.log(
+        //   `> Test place ${rdvLength} pour amo ${amo} a ${ptr.data.start}`
+        // );
+        if (
+          fit(ptr, rdvLength, 1800) &&
+          !isAlreadyFoundSolution(
+            S,
+            rdvLength,
+            initialAmosList[amo].planningStart + ptr.data.start
+          )
+        ) {
+          // console.log(`Rdv ${rdvLength} DOES FIT`);
+          let alc = getAmosListCopy(initialAmosList);
+          let nc = alc[amo].getNodeAt(nodeCounter);
+          fillRdv(rdvLength, nc);
+          let S1 = [];
+          // S1 = this.ftRec(0, alc, alc[0].head, [...people]);
+          S1 = dummyFill(alc[0].head, 0, [...people], alc);
+          // console.log(S1);
+          if (S1 === null) {
+            // console.log(`PAS DE SOLUTION`);
+          } else {
+            S = mergeSolutions(S, getAvailabilities(S1));
+            printSolutionsNumber(S);
+          }
+        } else {
+          // console.log(`Rdv ${rdvLength} DOES NOT FIT`);
+        }
+        // throw new Error(`STOP`);
+        counter++;
+      }
+
+      ptr = ptr.next;
+      nodeCounter += 1;
+    }
+  }
+  // console.log(`COUNTER : ${counter}`);
+  // console.log(JSON.stringify(S));
+  return S;
+};
+
+const solveRdv = (people) => {
+  let S = {};
+
+  // Get all solutions for all rdv lengths
+  let S1 = undefined;
+  let setAllLengths = Array.from(new Set(people)).sort(function (a, b) {
+    return b - a;
+  });
+  for (let x = 0; x < setAllLengths.length; x++) {
+    // console.log(`giveAnswer() : setAllLengths[${x}] = ${setAllLengths[x]}`);
+    S1 = [];
+    S1 = giveAnswers(S, setAllLengths[x], [...people]);
+    // console.log(S1);
+    if (S1 !== null) {
+      S = mergeSolutions(S, S1);
+      // console.log(JSON.stringify(S));
+    }
+    // S1[setAllLengths[x]] = S;
+  }
+
+  return S;
+};
+
+let S = solveRdv(people);
+
+console.log(S);
+// let alc = dummyFill(initialAmosList[0].head, 0, people, initialAmosList);
+
+// printLst(alc);
+
+// printLst(ret);
+// let S = getAvailabilities(ret);
+// console.log(S);
+// printAvailabilities(S);
 // let bt = new Bt(initialAmosList, pas);
 // let S = bt.giveAnswers(2, people);
 // S = bt.giveAnswers(3, people);
